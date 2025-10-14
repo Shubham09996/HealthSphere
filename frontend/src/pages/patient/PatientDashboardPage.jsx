@@ -1,8 +1,8 @@
 import React from 'react';
-import PremiumBanner from '../../components/Patient/PremiumBanner.jsx';
-import DashboardStats from '../../components/Patient/DashboardStats.jsx';
-import UpcomingAppointments from '../../components/Patient/UpcomingAppointments.jsx';
-import EPrescriptions from '../../components/Patient/EPrescriptions.jsx';
+import PremiumBanner from '../../components/patient/PremiumBanner.jsx';
+import DashboardStats from '../../components/patient/DashboardStats.jsx';
+import UpcomingAppointments from '../../components/patient/UpcomingAppointments.jsx';
+import EPrescriptions from '../../components/patient/EPrescriptions.jsx';
 import { MessageSquare } from 'lucide-react';
 
 const PatientDashboardPage = () => {

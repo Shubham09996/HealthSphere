@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { CalendarPlus } from 'lucide-react';
-import AppointmentCard from '../../components/Patient/AppointmentCard';
+import AppointmentCard from '../../components/patient/AppointmentCard';
 import { Link } from 'react-router-dom'; // Button ko link banane ke liye import
 
 // Dummy data for demonstration

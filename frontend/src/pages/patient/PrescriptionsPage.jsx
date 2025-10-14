@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react'; // useEffect import kiya
 import { prescriptionsData } from '../../data/prescriptionsData.js';
-import PrescriptionListItem from '../../components/Patient/PrescriptionListItem.jsx';
-import PrescriptionDetailView from '../../components/Patient/PrescriptionDetailView.jsx';
+import PrescriptionListItem from '../../components/patient/PrescriptionListItem.jsx';
+import PrescriptionDetailView from '../../components/patient/PrescriptionDetailView.jsx';
 import { Search, ListFilter } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 

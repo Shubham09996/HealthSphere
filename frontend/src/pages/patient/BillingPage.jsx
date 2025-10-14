@@ -4,10 +4,10 @@ import { IndianRupee, CreditCard, FileText, History, Shield } from 'lucide-react
 import { billingData } from '../../data/billingData';
 
 // Import Tab Components
-import InvoicesTab from '../../components/Patient/billing/InvoicesTab';
-import PaymentHistoryTab from '../../components/Patient/billing/PaymentHistoryTab';
-import PaymentMethodsTab from '../../components/Patient/billing/PaymentMethodsTab';
-import InsuranceTab from '../../components/Patient/billing/InsuranceTab';
+import InvoicesTab from '../../components/patient/billing/InvoicesTab';
+import PaymentHistoryTab from '../../components/patient/billing/PaymentHistoryTab';
+import PaymentMethodsTab from '../../components/patient/billing/PaymentMethodsTab';
+import InsuranceTab from '../../components/patient/billing/InsuranceTab';
 
 const tabs = [
     { id: 'invoices', label: 'Invoices', icon: FileText },

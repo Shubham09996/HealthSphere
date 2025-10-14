@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { healthRecordsData, vitalsData } from '../../data/healthRecordsData';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ListFilter, Stethoscope, TestTube2, ShieldAlert, Syringe } from 'lucide-react';
-import RecordDetailModal from '../../components/Patient/RecordDetailModal';
+import RecordDetailModal from '../../components/patient/RecordDetailModal';
 
 // ... VitalsChart component remains in your codebase but is not used on this page ...
 

@@ -3,13 +3,13 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { hospitalData } from '../../data/doctorsData';
 
 // Import New and Redesigned Step Components
-import BookingStepper from '../../components/Patient/booking/BookingStepper';
-import Step1SelectHospital from '../../components/Patient/booking/Step1SelectHospital';
-import Step2SelectDepartment from '../../components/Patient/booking/Step2SelectDepartment';
-import Step2aSelectDoctor from '../../components/Patient/booking/Step2aSelectDoctor';
-import Step3SelectDateAndSlot from '../../components/Patient/booking/Step3SelectDateAndSlot';
-import Step4Confirmation from '../../components/Patient/booking/Step4Confirmation';
-import Step5Success from '../../components/Patient/booking/Step5Success';
+import BookingStepper from '../../components/patient/booking/BookingStepper';
+import Step1SelectHospital from '../../components/patient/booking/Step1SelectHospital';
+import Step2SelectDepartment from '../../components/patient/booking/Step2SelectDepartment';
+import Step2aSelectDoctor from '../../components/patient/booking/Step2aSelectDoctor';
+import Step3SelectDateAndSlot from '../../components/patient/booking/Step3SelectDateAndSlot';
+import Step4Confirmation from '../../components/patient/booking/Step4Confirmation';
+import Step5Success from '../../components/patient/booking/Step5Success';
 
 const steps = ["Hospital", "Department", "Date & Slot", "Confirm"];
 

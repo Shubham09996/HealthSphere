@@ -2,8 +2,8 @@ import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 
 // Layouts
-import PublicLayout from './components/Patient/PublicLayout.jsx';
-import PatientDashboardLayout from './components/Patient/PatientDashboardLayout.jsx';
+import PublicLayout from './components/patient/PublicLayout.jsx';
+import PatientDashboardLayout from './components/patient/PatientDashboardLayout.jsx';
 import DoctorDashboardLayout from './components/doctor/DoctorDashboardLayout.jsx';
 import ShopDashboardLayout from './components/shop/ShopDashboardLayout.jsx';
 import AdminDashboardLayout from './components/admin/AdminDashboardLayout.jsx'; 
@@ -17,23 +17,23 @@ import LoginPage from './pages/LoginPage.jsx';
 import SignupPage from './pages/SignupPage.jsx';
 
 // Patient Pages (all of them)
-import PatientDashboardPage from './pages/Patient/PatientDashboardPage.jsx';
-import AppointmentsPage from './pages/Patient/AppointmentsPage.jsx';
-import BookAppointmentPage from './pages/Patient/BookAppointmentPage.jsx';
-import PrescriptionsPage from './pages/Patient/PrescriptionsPage.jsx';
-import MedicineFinderPage from './pages/Patient/MedicineFinderPage.jsx';
-import MedicineDetailPage from './pages/Patient/MedicineDetailPage.jsx';
-import HealthRecordsPage from './pages/Patient/HealthRecordsPage.jsx';
-import BillingPage from './pages/Patient/BillingPage.jsx';
-import PatientProfilePage from './pages/Patient/PatientProfilePage.jsx';
-import NotificationsPage from './pages/Patient/NotificationsPage.jsx';
-import SettingsPage from './pages/Patient/SettingsPage.jsx';
-import MyTokenPage from './pages/Patient/MyTokenPage.jsx';
-import DonatePage from './pages/Patient/DonatePage.jsx';
-import HowToUsePage from './pages/Patient/HowToUsePage.jsx';
-import ProfileSettings from './components/Patient/settings/ProfileSettings.jsx';
-import SecuritySettings from './components/Patient/settings/SecuritySettings.jsx';
-import NotificationSettings from './components/Patient/settings/NotificationSettings.jsx';
+import PatientDashboardPage from './pages/patient/PatientDashboardPage.jsx';
+import AppointmentsPage from './pages/patient/AppointmentsPage.jsx';
+import BookAppointmentPage from './pages/patient/BookAppointmentPage.jsx';
+import PrescriptionsPage from './pages/patient/PrescriptionsPage.jsx';
+import MedicineFinderPage from './pages/patient/MedicineFinderPage.jsx';
+import MedicineDetailPage from './pages/patient/MedicineDetailPage.jsx';
+import HealthRecordsPage from './pages/patient/HealthRecordsPage.jsx';
+import BillingPage from './pages/patient/BillingPage.jsx';
+import PatientProfilePage from './pages/patient/PatientProfilePage.jsx';
+import NotificationsPage from './pages/patient/NotificationsPage.jsx';
+import SettingsPage from './pages/patient/SettingsPage.jsx';
+import MyTokenPage from './pages/patient/MyTokenPage.jsx';
+import DonatePage from './pages/patient/DonatePage.jsx';
+import HowToUsePage from './pages/patient/HowToUsePage.jsx';
+import ProfileSettings from './components/patient/settings/ProfileSettings.jsx';
+import SecuritySettings from './components/patient/settings/SecuritySettings.jsx';
+import NotificationSettings from './components/patient/settings/NotificationSettings.jsx';
 
 // Doctor Pages
 import DoctorDashboardPage from './pages/doctor/DoctorDashboardPage.jsx';
