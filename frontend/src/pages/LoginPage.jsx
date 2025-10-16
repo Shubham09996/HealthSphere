@@ -11,6 +11,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 // import Loader from '../components/Loader'; // Removed as it was for Redux isLoading state
 import api from '../utils/api'; // Import the configured axios instance
+import { useAuth } from '../context/AuthContext'; // Import useAuth hook
 
 // Self-contained Google Icon to remove dependency errors (copied from SignupPage.jsx)
 const GoogleIcon = () => (
@@ -54,16 +55,6 @@ const roleData = {
             { icon: CheckCircle, title: "Inventory Sync", desc: "Keep your stock updated with our smart inventory system." }
         ]
     },
-    donor: {
-        icon: Heart,
-        welcome: "Be a Lifesaver",
-        subtext: "Find blood donation camps, track your donations, and help save lives.",
-        features: [
-            { icon: Ambulance, title: "Find Camps", desc: "Easily locate nearby blood donation drives and events." },
-            { icon: Heart, title: "Donation History", desc: "Keep a record of your donations and see your impact." },
-            { icon: Syringe, title: "Eligibility Check", desc: "Quickly check if you are eligible for donation." }
-        ]
-    },
     admin: {
         icon: Shield,
         welcome: "Administrator Control",
@@ -81,8 +72,10 @@ const LoginPage = () => {
     const [email, setEmail] = useState(''); // State for email input
     const [password, setPassword] = useState(''); // State for password input
     const [showPassword, setShowPassword] = useState(false);
+    const [loading, setLoading] = useState(false); // Add loading state
     const selectedRoleData = roleData[role];
     const navigate = useNavigate();
+    const { login } = useAuth(); // Use the login function from AuthContext
 
     // Removed Redux-related state and hooks
     // const dispatch = useDispatch();
@@ -90,7 +83,7 @@ const LoginPage = () => {
     // const { userInfo } = useSelector((state) => state.auth);
 
     useEffect(() => {
-        // Revert userInfo check to use localStorage token for authentication status
+        // Check for JWT in localStorage for authentication status
         if (localStorage.getItem('jwt')) { // Check for JWT in localStorage
             const userRole = localStorage.getItem('userRole'); // Assuming userRole is stored
             if (userRole) {
@@ -103,6 +96,7 @@ const LoginPage = () => {
 
     const submitHandler = async (e) => {
         e.preventDefault();
+        setLoading(true); // Set loading to true
         try {
             const res = await api.post('/api/users/auth', { email, password });
             if (res.data) {
@@ -125,6 +119,8 @@ const LoginPage = () => {
         } catch (err) {
             console.error("Normal Login Failed:", err);
             toast.error(err.response?.data?.message || err.message || "Login failed. Please check your credentials.");
+        } finally {
+            setLoading(false); // Set loading to false in finally block
         }
     };
 
@@ -276,8 +272,9 @@ const LoginPage = () => {
                             className="w-full bg-gradient-to-r from-hs-gradient-start via-hs-gradient-middle to-hs-gradient-end text-primary-foreground py-3 rounded-md font-semibold hover:opacity-90 transition-opacity"
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
+                            disabled={loading} // Disable button when loading
                         >
-                            Sign In
+                            {loading ? 'Signing In...' : 'Sign In'} {/* Change button text/add spinner */}
                         </motion.button>
                     </form>
 

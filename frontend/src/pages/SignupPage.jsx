@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import PatientOnboardingModal from '../components/patient/PatientOnboardingModal';
 import DoctorOnboardingModal from '../components/doctor/DoctorOnboardingModal';
 import { toast } from 'react-toastify';
+import { useAuth } from '../context/AuthContext'; // Import useAuth hook
 
 // Self-contained Google Icon to remove dependency errors
 const GoogleIcon = () => (
@@ -24,7 +25,6 @@ const roleData = {
     Patient: { icon: User, label: 'Patient' },
     Doctor: { icon: Stethoscope, label: 'Doctor' },
     Shop: { icon: Building, label: 'Shop' },
-    Donor: { icon: Heart, label: 'Donor' },
     Admin: { icon: Shield, label: 'Admin' }
 };
 
@@ -55,15 +55,6 @@ const roleInfo = {
             { icon: TestTube2, title: 'Prescription Verification', text: 'Verify digital prescriptions instantly and securely.' },
             { icon: Building, title: 'Inventory Management', text: 'Track your stock and manage orders seamlessly.' },
             { icon: Sparkles, title: 'Wider Customer Reach', text: 'Connect with a larger network of patients.' }
-        ]
-    },
-    Donor: {
-        title: 'Become a Lifesaver',
-        description: 'Join our donor network to contribute and save lives.',
-        features: [
-            { icon: HeartHandshake, title: 'Find Donation Camps', text: 'Locate nearby blood or organ donation drives.' },
-            { icon: ShieldCheck, title: 'Verified Requests', text: 'Connect with verified patients in need of donations.' },
-            { icon: User, title: 'Donor Community', text: 'Be a part of a community making a difference.' }
         ]
     },
     Admin: {
@@ -139,8 +130,10 @@ const SignupPage = () => {
     const [newlySignedUpDoctorId, setNewlySignedUpDoctorId] = useState(null);
     const [hospitals, setHospitals] = useState([]); // New state for hospitals
     const [selectedHospital, setSelectedHospital] = useState(''); // New state for selected hospital ID
+    const [loading, setLoading] = useState(false); // Add loading state
 
     const navigate = useNavigate();
+    const { login } = useAuth(); // Use the login function from AuthContext
 
     // Fetch hospitals on component mount for the dropdown
     useEffect(() => {
@@ -164,6 +157,23 @@ const SignupPage = () => {
             }
         }
     }, [navigate]);
+
+    const handleCredentialResponse = async (response) => {
+        if (response.credential) {
+            try {
+                const res = await api.post('/users/google-auth', { idToken: response.credential });
+                if (res.data) {
+                    console.log("Google Signup Successful:", res.data);
+                    const userRole = res.data.role.toLowerCase();
+                    login(res.data);
+                    navigate(`/${userRole}/dashboard`);
+                }
+            } catch (error) {
+                console.error("Google Signup Failed:", error);
+                alert("Google signup failed. Please try again.");
+            }
+        }
+    };
 
     const handleGoogleSignupClick = () => {
         window.location.href = 'http://localhost:5000/api/users/auth/google'; // Directly navigate to backend Google OAuth
@@ -192,7 +202,7 @@ const SignupPage = () => {
             toast.error('Please select a hospital for the doctor.'); // Using toast for consistency
             return;
         }
-
+        setLoading(true); // Set loading to true
         try {
             const formData = new FormData();
             formData.append('fullName', fullName);
@@ -218,8 +228,17 @@ const SignupPage = () => {
                 localStorage.setItem('profilePicture', res.data.profilePicture);
                 localStorage.setItem('userName', res.data.name);
                 localStorage.setItem('userRole', res.data.role);
-
+                
                 const userRole = res.data.role.toLowerCase();
+                
+                // Prepare data for login context
+                const userDataForLogin = {
+                    ...res.data, // Contains _id, name, email, role, profilePicture, phoneNumber, isVerified, status
+                    doctorProfileId: res.data.specificProfileId, // For doctor onboarding
+                    patientId: res.data.specificProfileId, // For patient onboarding
+                };
+                login(userDataForLogin); // Use login from AuthContext
+
                 localStorage.setItem(`${userRole}Id`, res.data.specificProfileId);
 
                 // Check for isNewUser (which would only be relevant for Google OAuth, but let's keep it for future-proofing)
@@ -243,6 +262,8 @@ const SignupPage = () => {
         } catch (err) {
             console.error("Normal Signup Failed:", err);
             toast.error(err.response?.data?.message || err.message || "Registration failed. Please try again.");
+        } finally {
+            setLoading(false); // Set loading to false in finally block
         }
     };
 
@@ -417,8 +438,9 @@ const SignupPage = () => {
                         whileHover={{ scale: 1.01 }}
                         whileTap={{ scale: 0.99 }}
                         onClick={submitHandler} // Changed to submitHandler
+                        disabled={loading} // Disable button when loading
                     >
-                        Create Account
+                        {loading ? 'Creating Account...' : 'Create Account'} {/* Change button text/add spinner */}
                     </motion.button>
 
                     <div className="flex items-center gap-2">
