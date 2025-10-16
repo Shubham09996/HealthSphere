@@ -82,15 +82,17 @@ const MyPatientsPage = () => {
                 }
                 const response = await api.get(`/api/patients`);
                 
-                const formattedDynamicPatients = response.data.map(p => ({
+                const formattedDynamicPatients = response.data
+                    .filter(p => p.user && p.user.name) // Filter out patients with null user or missing name
+                    .map(p => ({
                     id: p.patientId, // Use patientId as id
-                    name: p.user.name,
-                    pfp: p.user.profilePicture || 'https://avatar.iran.liara.run/public/boy?username=Default', // Fallback for profile picture
+                    name: p.user?.name || 'Unknown Patient',
+                    pfp: p.user?.profilePicture || 'https://avatar.iran.liara.run/public/boy?username=Default', // Fallback for profile picture
                     age: new Date().getFullYear() - new Date(p.dob).getFullYear(),
                     gender: p.gender,
                     lastVisit: p.recentActivity && p.recentActivity.length > 0 ? new Date(p.recentActivity[0].date).toLocaleDateString() : 'N/A',
                     status: p.status || 'Active', // Assuming patient has a status or default to Active
-                    contact: { phone: p.user.phoneNumber, email: p.user.email },
+                    contact: { phone: p.user?.phoneNumber || 'N/A', email: p.user?.email || 'N/A' },
                     criticalInfo: { 
                         allergies: p.allergies && p.allergies.length > 0 ? p.allergies : ['None'], 
                         chronicConditions: p.chronicConditions && p.chronicConditions.length > 0 ? p.chronicConditions : ['None'],

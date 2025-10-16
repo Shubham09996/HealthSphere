@@ -54,17 +54,23 @@ const Step2aSelectDoctor = ({ onNext, details, onBack }) => {
                         <p className="text-sm text-muted-foreground">Book the earliest available slot in the department.</p>
                     </div>
                 </motion.div>
-                {doctors.map(doc => (
-                     <motion.div key={doc._id} onClick={() => onNext({ doctor: doc })}
-                        className="flex items-center gap-4 p-4 border border-border rounded-lg cursor-pointer hover:bg-muted"
-                        whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}>
-                        <img src={doc.user.profilePicture || "https://via.placeholder.com/100"} alt={doc.user.name} className="w-12 h-12 object-cover rounded-full"/>
-                        <div>
-                            <h3 className="font-semibold text-foreground">{doc.user.name}</h3>
-                            <p className="text-sm text-muted-foreground">{doc.specialty} • {doc.experience} years of experience</p>
-                        </div>
-                    </motion.div>
-                ))}
+                {doctors.length > 0 ? (
+                    doctors
+                        .filter(doc => doc.user && doc.user.name) // Filter out doctors with null user or missing name
+                        .map(doc => (
+                        <motion.div key={doc._id} onClick={() => onNext({ doctor: doc })}
+                            className="flex items-center gap-4 p-4 border border-border rounded-lg cursor-pointer hover:bg-muted"
+                            whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}>
+                            <img src={doc.user?.profilePicture || "https://via.placeholder.com/100"} alt={doc.user?.name || 'Doctor'} className="w-12 h-12 object-cover rounded-full"/>
+                            <div>
+                                <h3 className="font-semibold text-foreground">Dr. {doc.user?.name || 'Unknown'}</h3>
+                                <p className="text-sm text-muted-foreground">{doc.specialty} • {doc.experience} years of experience</p>
+                            </div>
+                        </motion.div>
+                    ))
+                ) : (
+                    <p className="text-muted-foreground">No doctors available for this department and hospital.</p>
+                )}
             </div>
         </div>
     );

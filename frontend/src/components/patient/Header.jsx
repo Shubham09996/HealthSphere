@@ -11,7 +11,7 @@ const Header = ({ isSidebarOpen, setIsSidebarOpen }) => {
     const dropdownRef = useRef(null);
     const navigate = useNavigate();
     const { user, logout } = useAuth(); // Get user and logout from AuthContext
-    
+
     // Debug: Log user data to console
     console.log('Header - User data:', user);
     console.log('Header - User profilePicture:', user?.profilePicture);

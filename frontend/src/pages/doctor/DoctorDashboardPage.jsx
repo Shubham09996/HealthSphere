@@ -112,8 +112,11 @@ const DoctorDashboardPage = () => {
         return <div className="text-center text-muted-foreground">No doctor dashboard data found.</div>;
     }
 
+    // Filter out patients with incomplete user data before sorting and processing the queue
+    const filteredQueue = queue.filter(appointment => appointment.patient && appointment.patient.user && appointment.patient.user.name);
+
     // Refined queue processing logic
-    const sortedQueue = [...queue].sort((a, b) => {
+    const sortedQueue = [...filteredQueue].sort((a, b) => {
         const timeA = a.time.replace(':', '');
         const timeB = b.time.replace(':', '');
         return timeA - timeB;
@@ -183,9 +186,9 @@ const DoctorDashboardPage = () => {
                                 {patients.map(patient => (
                                     <tr key={patient._id}>
                                         <td className="px-3 py-2 text-sm text-foreground">{patient.patientId}</td>
-                                        <td className="px-3 py-2 text-sm text-foreground">{patient.user.name}</td>
-                                        <td className="px-3 py-2 text-sm text-foreground">{patient.user.email}</td>
-                                        <td className="px-3 py-2 text-sm text-foreground">{patient.user.phoneNumber}</td>
+                                        <td className="px-3 py-2 text-sm text-foreground">{patient.user?.name || 'N/A'}</td>
+                                        <td className="px-3 py-2 text-sm text-foreground">{patient.user?.email || 'N/A'}</td>
+                                        <td className="px-3 py-2 text-sm text-foreground">{patient.user?.phoneNumber || 'N/A'}</td>
                                         <td className="px-3 py-2 text-sm font-medium">
                                             <Link to={`/doctor/patients/${patient._id}`} className="text-blue-500 hover:underline">View Profile</Link>
                                         </td>

@@ -11,18 +11,43 @@ import mongoose from 'mongoose'; // Added mongoose import for ObjectId
 // @access  Public
 const getDoctors = asyncHandler(async (req, res) => {
   const { specialty, hospital } = req.query;
-  let query = {};
+  let matchQuery = {};
 
   if (specialty) {
-    query.specialty = specialty;
+    matchQuery.specialty = specialty;
   }
 
   if (hospital) {
-    // Assuming hospital query parameter is the hospital's ID
-    query.hospital = hospital;
+    matchQuery.hospital = new mongoose.Types.ObjectId(hospital); // Convert to ObjectId
   }
 
-  const doctors = await Doctor.find(query).populate('user', 'name email profilePicture phoneNumber').populate('hospital', 'name location'); // Populate hospital info
+  const doctors = await Doctor.aggregate([
+    { $match: matchQuery },
+    {
+      $lookup: {
+        from: 'users',
+        localField: 'user',
+        foreignField: '_id',
+        as: 'user',
+      },
+    },
+    { $unwind: '$user' }, // Ensure the user is present; will error if user is null
+    {
+      $lookup: {
+        from: 'hospitals',
+        localField: 'hospital',
+        foreignField: '_id',
+        as: 'hospital',
+      },
+    },
+    { $unwind: { path: '$hospital', preserveNullAndEmptyArrays: true } }, // Hospital might be optional
+    {
+      $project: {
+        'user.password': 0, // Exclude password from the user object
+      },
+    },
+  ]);
+
   res.json(doctors);
 });
 
@@ -520,10 +545,11 @@ const getDoctorAppointmentQueue = asyncHandler(async (req, res) => {
         return {
             id: app._id,
             patientId: app.patient.patientId, // Include patientId here
-            name: app.patient.user.name, // Access name from populated user
-            profilePicture: app.patient.user.profilePicture, // Access profilePicture from populated user
+            name: app.patient.user?.name || 'Unknown', // Access name from populated user with optional chaining
+            profilePicture: app.patient.user?.profilePicture || '/uploads/default.jpg', // Access profilePicture from populated user with optional chaining
             age: age,
             time: app.time,
+            date: app.date, // Include the date here
             status: app.status,
             reason: app.reason,
             patient: app.patient, // Include the entire patient object

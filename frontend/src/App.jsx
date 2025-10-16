@@ -18,6 +18,7 @@ import SignupPage from './pages/SignupPage.jsx';
 import ForgotPasswordPage from './pages/ForgotPasswordPage.jsx'; // NEW: Import ForgotPasswordPage
 import ResetPasswordPage from './pages/ResetPasswordPage.jsx'; // NEW: Import ResetPasswordPage
 import PatientOnboardingPage from './pages/patient/PatientOnboardingPage.jsx'; // Import new onboarding page
+import PrivateRoute from './components/PrivateRoute.jsx'; // Import PrivateRoute
 
 // Patient Pages (all of them)
 import PatientDashboardPage from './pages/patient/PatientDashboardPage.jsx';
@@ -99,11 +100,11 @@ function App() {
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} /> {/* NEW: Forgot password route */}
           <Route path="/reset-password/:token" element={<ResetPasswordPage />} /> {/* NEW: Reset password route */}
-          <Route path="/patient-onboarding/:userId" element={<PatientOnboardingPage />} /> {/* New onboarding route */}
         </Route>
 
         {/* --- PATIENT DASHBOARD ROUTES --- */}
-        <Route path="/patient" element={<PatientDashboardLayout />}>
+        <Route element={<PrivateRoute allowedRoles={['Patient']} />}>
+          <Route path="/patient" element={<PatientDashboardLayout />}>
             {/* All patient routes are correctly configured here */}
             <Route index element={<Navigate to="dashboard" replace />} />
             <Route path="dashboard" element={<PatientDashboardPage />} />
@@ -125,63 +126,71 @@ function App() {
                 <Route path="security" element={<SecuritySettings />} />
                 <Route path="notifications" element={<NotificationSettings />} />
             </Route>
+          </Route>
+          <Route path="patient-onboarding/:userId" element={<PatientOnboardingPage />} /> {/* New onboarding route */}
         </Route>
 
         {/* --- DOCTOR DASHBOARD ROUTES --- */}
-        <Route path="/doctor" element={<DoctorDashboardLayout />}>
-          <Route index element={<Navigate to="dashboard" replace />} />
-          <Route path="dashboard" element={<DoctorDashboardPage />} />
-          
-          {/* UPDATED: Functional route for Schedule Page */}
-          <Route path="schedule" element={<SchedulePage />} />
+        <Route element={<PrivateRoute allowedRoles={['Doctor']} />}>
+          <Route path="/doctor" element={<DoctorDashboardLayout />}>
+            <Route index element={<Navigate to="dashboard" replace />} />
+            <Route path="dashboard" element={<DoctorDashboardPage />} />
+            
+            {/* UPDATED: Functional route for Schedule Page */}
+            <Route path="schedule" element={<SchedulePage />} />
 
-          <Route path="patients" element={<MyPatientsPage />} />
-          <Route path="prescriptions" element={<DoctorPrescriptionsPage />} />
-          <Route path="profile" element={<DoctorProfilePage />} />
-          <Route path="notifications" element={<DoctorNotificationsPage />} />
+            <Route path="patients" element={<MyPatientsPage />} />
+            <Route path="prescriptions" element={<DoctorPrescriptionsPage />} />
+            <Route path="profile" element={<DoctorProfilePage />} />
+            <Route path="notifications" element={<DoctorNotificationsPage />} />
 
-          <Route path="settings" element={<DoctorSettingsPage />}>
-            <Route index element={<Navigate to="profile" replace />} />
-            <Route path="profile" element={<DoctorProfileSettings />} />
-            <Route path="consultation" element={<ConsultationSettings />} />
-            <Route path="security" element={<SecuritySettings />} />
-            <Route path="notifications" element={<NotificationSettings />} />
+            <Route path="settings" element={<DoctorSettingsPage />}>
+              <Route index element={<Navigate to="profile" replace />} />
+              <Route path="profile" element={<DoctorProfileSettings />} />
+              <Route path="consultation" element={<ConsultationSettings />} />
+              <Route path="security" element={<SecuritySettings />} />
+              <Route path="notifications" element={<NotificationSettings />} />
+            </Route>
           </Route>
         </Route>
 
-        <Route path="/shop" element={<ShopDashboardLayout />}>
-          <Route index element={<Navigate to="dashboard" replace />} />
-          <Route path="dashboard" element={<ShopDashboardPage />} />
-          <Route path="orders" element={<ShopOrdersPage />} />
-          <Route path="inventory" element={<ShopInventoryPage />} />
-          <Route path="billing" element={<ShopBillingPage />} />
-          <Route path="analytics" element={<ShopAnalyticsPage />} />
-          <Route path="notifications" element={<ShopNotificationsPage />} />
-          <Route path="profile" element={<ShopProfilePage />} />
+        <Route element={<PrivateRoute allowedRoles={['Shop']} />}>
+          <Route path="/shop" element={<ShopDashboardLayout />}>
+            <Route index element={<Navigate to="dashboard" replace />} />
+            <Route path="dashboard" element={<ShopDashboardPage />} />
+            <Route path="orders" element={<ShopOrdersPage />} />
+            <Route path="inventory" element={<ShopInventoryPage />} />
+            <Route path="billing" element={<ShopBillingPage />} />
+            <Route path="analytics" element={<ShopAnalyticsPage />} />
+            <Route path="notifications" element={<ShopNotificationsPage />} />
+            <Route path="profile" element={<ShopProfilePage />} />
 
 
-          <Route path="settings" element={<ShopSettingsPage />}>
-            <Route index element={<Navigate to="profile" replace />} />
-            <Route path="profile" element={<ShopProfileSettings />} />
-            <Route path="billing" element={<PlanAndBilling />} />
-            <Route path="staff" element={<StaffManagement />} />
-            <Route path="integrations" element={<Integrations />} />
+            <Route path="settings" element={<ShopSettingsPage />}>
+              <Route index element={<Navigate to="profile" replace />} />
+              <Route path="profile" element={<ShopProfileSettings />} />
+              <Route path="billing" element={<PlanAndBilling />} />
+              <Route path="staff" element={<StaffManagement />} />
+              <Route path="integrations" element={<Integrations />} />
+            </Route>
           </Route>
         </Route>
 
         {/* --- NEW: ADMIN DASHBOARD ROUTES --- */}
-        <Route path="/admin" element={<AdminDashboardLayout />}>
-          <Route index element={<Navigate to="dashboard" replace />} />
-          <Route path="dashboard" element={<AdminDashboardPage />} />
-          <Route path="users" element={<UserManagementPage />} />
-          <Route path="users/add" element={<AddUserPage />} /> {/* New route for adding users */}
-          <Route path="hospitals" element={<HospitalManagementPage />} />
-          <Route path="hospitals/add" element={<AddHospitalPage />} /> {/* New route for adding hospitals */}
-          <Route path="analytics" element={<AdminAnalyticsPage />} />
-          <Route path="security" element={<AdminSecurityPage />} />
-          <Route path="notifications" element={<AdminNotificationsPage />} />
-          <Route path="profile" element={<AdminProfilePage />} />
-          <Route path="profile/settings" element={<AdminProfileSettings />} /> {/* New route for admin profile settings */}
+        <Route element={<PrivateRoute allowedRoles={['Admin']} />}>
+          <Route path="/admin" element={<AdminDashboardLayout />}>
+            <Route index element={<Navigate to="dashboard" replace />} />
+            <Route path="dashboard" element={<AdminDashboardPage />} />
+            <Route path="users" element={<UserManagementPage />} />
+            <Route path="users/add" element={<AddUserPage />} /> {/* New route for adding users */}
+            <Route path="hospitals" element={<HospitalManagementPage />} />
+            <Route path="hospitals/add" element={<AddHospitalPage />} /> {/* New route for adding hospitals */}
+            <Route path="analytics" element={<AdminAnalyticsPage />} />
+            <Route path="security" element={<AdminSecurityPage />} />
+            <Route path="notifications" element={<AdminNotificationsPage />} />
+            <Route path="profile" element={<AdminProfilePage />} />
+            <Route path="profile/settings" element={<AdminProfileSettings />} /> {/* New route for admin profile settings */}
+          </Route>
         </Route>
 
       </Routes>

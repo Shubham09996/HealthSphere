@@ -178,6 +178,8 @@ const createAppointment = asyncHandler(async (req, res) => {
       const patientUser = await User.findById(patient.user);
       if (patientUser && patientUser.phoneNumber) {
           const patientPhoneNumber = `+91${patientUser.phoneNumber}`; // Add +91 prefix
+          console.log("Attempting to schedule Twilio call for patient:", patientPhoneNumber);
+          console.log("Call scheduled in", delay / 1000, "seconds"); // Log the delay in seconds
           setTimeout(() => {
               makeCall(patientPhoneNumber, config.twilio.recordedCallUrl)
                   .catch(err => console.error("Error making scheduled call:", err));

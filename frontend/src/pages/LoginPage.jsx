@@ -301,42 +301,6 @@ const LoginPage = () => {
                     </motion.button>
 
                     {/* Dummy Login Buttons for Patient and Doctor */}
-                    <div className="flex flex-col space-y-3">
-                        <motion.button
-                            className="w-full bg-gradient-to-r from-hs-gradient-start via-hs-gradient-middle to-hs-gradient-end text-primary-foreground py-3 rounded-md font-semibold hover:opacity-90 transition-opacity"
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
-                            onClick={() => navigate('/patient/dashboard')}
-                        >
-                            Patient Login
-                        </motion.button>
-                        <motion.button
-                            className="w-full bg-gradient-to-r from-hs-gradient-start via-hs-gradient-middle to-hs-gradient-end text-primary-foreground py-3 rounded-md font-semibold hover:opacity-90 transition-opacity"
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
-                            onClick={() => navigate('/doctor/dashboard')}
-                        >
-                            Doctor Login
-                        </motion.button>
-                        {/* NEW: Shop Login Button */}
-                        <motion.button
-                            className="w-full bg-gradient-to-r from-hs-gradient-start via-hs-gradient-middle to-hs-gradient-end text-primary-foreground py-3 rounded-md font-semibold hover:opacity-90 transition-opacity"
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
-                            onClick={() => navigate('/shop/dashboard')}
-                        >
-                            Shop Login
-                        </motion.button>
-                        {/* NEW: Admin Login Button */}
-                        <motion.button
-                            className="w-full bg-gradient-to-r from-hs-gradient-start via-hs-gradient-middle to-hs-gradient-end text-primary-foreground py-3 rounded-md font-semibold hover:opacity-90 transition-opacity"
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
-                            onClick={() => navigate('/admin/dashboard')}
-                        >
-                            Admin Login
-                        </motion.button>
-                    </div>
                     
                     <p className="text-center text-muted-foreground text-xs sm:text-sm">
                         Don't have an account? 

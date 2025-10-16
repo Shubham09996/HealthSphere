@@ -32,9 +32,9 @@ const PatientListTable = ({ patients, onPatientSelect }) => {
                             >
                                 <td className="p-4">
                                     <div className="flex items-center gap-3">
-                                        <img src={patient.pfp} alt={patient.name} className="w-10 h-10 rounded-full"/>
+                                        <img src={patient.pfp || 'https://via.placeholder.com/100'} alt={patient.name || 'Unknown Patient'} className="w-10 h-10 rounded-full"/>
                                         <div>
-                                            <p className="font-bold text-foreground">{patient.name}</p>
+                                            <p className="font-bold text-foreground">{patient.name || 'Unknown Patient'}</p>
                                             <p className="text-sm text-muted-foreground">{patient.id}</p>
                                         </div>
                                     </div>

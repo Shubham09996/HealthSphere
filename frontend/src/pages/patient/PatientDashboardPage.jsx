@@ -87,7 +87,9 @@ const PatientDashboardPage = () => {
             <div className="bg-card p-6 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-md">
                 <h2 className="text-2xl font-bold text-foreground mb-4">Find a Doctor</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {doctors.length > 0 ? (doctors.map(doctor => (
+                    {doctors.length > 0 ? (doctors
+                        .filter(doctor => doctor.user && doctor.user.name) // Filter out doctors with null user or missing name
+                        .map(doctor => (
                         <motion.div 
                             key={doctor._id} 
                             className="bg-background p-4 rounded-lg border border-border flex items-center gap-4 hover:shadow-lg transition-shadow duration-200"
@@ -96,12 +98,12 @@ const PatientDashboardPage = () => {
                             transition={{ duration: 0.3 }}
                         >
                             <img 
-                                src={doctor.user.profilePicture || '/uploads/default.jpg'} 
-                                alt={doctor.user.name} 
+                                src={doctor.user?.profilePicture || '/uploads/default.jpg'} 
+                                alt={doctor.user?.name || 'Doctor'} 
                                 className="w-12 h-12 rounded-full object-cover border-2 border-primary/50"
                             />
                             <div>
-                                <p className="font-semibold text-foreground">Dr. {doctor.user.name}</p>
+                                <p className="font-semibold text-foreground">Dr. {doctor.user?.name || 'Unknown Doctor'}</p>
                                 <p className="text-sm text-muted-foreground">{doctor.specialty}</p>
                             </div>
                             <Link to={`/patient/book-appointment/${doctor.medicalRegistrationNumber}`} className="ml-auto bg-primary text-primary-foreground text-sm px-3 py-1 rounded-md hover:bg-primary/90">Book</Link>

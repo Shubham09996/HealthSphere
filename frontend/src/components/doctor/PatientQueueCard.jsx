@@ -16,9 +16,14 @@ const PatientQueueCard = ({ patient, isActive = false }) => {
                 <div className="flex-1">
                     <div className="flex items-center gap-2">
                         <p className="font-bold text-foreground">{patient.name}{patient.age ? `, ${patient.age}` : ''}</p>
-                        <span className="font-mono text-xs px-2 py-0.5 bg-card rounded-md">{patient.tokenNumber}</span>
+                        {patient.token && <span className="font-mono text-xs px-2 py-0.5 bg-card rounded-md">Token: {patient.token}</span>} {/* Display token if available */}
                     </div>
                     <p className="text-sm text-muted-foreground">{patient.reason || 'General Consultation'}</p>
+                    {patient.date && patient.time && (
+                        <p className="text-xs text-muted-foreground mt-1">
+                            Scheduled: {new Date(patient.date).toLocaleDateString()} at {patient.time}
+                        </p>
+                    )}
                 </div>
                 <div className="flex gap-2 w-full sm:w-auto">
                      <button className="flex-1 sm:flex-none flex items-center justify-center gap-2 text-sm font-semibold py-2 px-3 rounded-lg border border-border hover:bg-border">
