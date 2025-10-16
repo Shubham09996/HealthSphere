@@ -3,13 +3,15 @@ import { Search, Bell, Menu, Sun, Moon, HelpCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTheme } from '../../context/ThemeContext.jsx';
+import { useAuth } from '../../context/AuthContext.jsx'; // Import useAuth hook
 
 const Header = ({ isSidebarOpen, setIsSidebarOpen }) => {
     const { theme, toggleTheme } = useTheme();
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const dropdownRef = useRef(null);
     const navigate = useNavigate();
-    const [userProfilePicture, setUserProfilePicture] = useState('');
+    const { user, logout } = useAuth(); // Get user and logout from AuthContext
+    const userProfilePicture = user?.profilePicture || '/placeholders/default_avatar.jpg'; // Use user's profile picture
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -23,13 +25,6 @@ const Header = ({ isSidebarOpen, setIsSidebarOpen }) => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
     }, [dropdownRef]);
-
-    useEffect(() => {
-        const storedProfilePicture = localStorage.getItem('profilePicture');
-        if (storedProfilePicture) {
-            setUserProfilePicture(storedProfilePicture);
-        }
-    }, []);
 
     return (
         <header className="flex items-center justify-between p-4 bg-card border-b border-border sticky top-0 z-40">
@@ -132,7 +127,7 @@ const Header = ({ isSidebarOpen, setIsSidebarOpen }) => {
                             </Link>
                             <button 
                                 onClick={() => { 
-                                    // Implement logout logic here
+                                    logout(); // Call logout from AuthContext
                                     navigate('/login'); // Redirect to login page after logout
                                     setIsDropdownOpen(false);
                                 }}

@@ -41,6 +41,12 @@ export const AuthProvider = ({ children }) => {
             } else {
                 console.warn('Doctor logging in without specificProfileId. Check userController.js response.');
             }
+        } else if (userData.role === 'Patient') {
+            if (userData.specificProfileId) {
+                localStorage.setItem('patientId', userData.specificProfileId); // Store patientId in local storage
+            } else {
+                console.warn('Patient logging in without specificProfileId. Check userController.js response.');
+            }
         }
     };
 
