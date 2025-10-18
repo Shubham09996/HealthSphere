@@ -101,7 +101,6 @@ const LoginPage = () => {
             const res = await api.post('/api/users/auth', { email, password });
             if (res.data) {
                 console.log("Normal Login Successful:", res.data);
-                localStorage.setItem('jwt', res.data.token); // Assuming token is returned for normal login
                 localStorage.setItem('profilePicture', res.data.profilePicture);
                 localStorage.setItem('userName', res.data.name);
                 localStorage.setItem('userRole', res.data.role);

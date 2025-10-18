@@ -239,8 +239,6 @@ const SignupPage = () => {
                 };
                 login(userDataForLogin); // Use login from AuthContext
 
-                localStorage.setItem(`${userRole}Id`, res.data.specificProfileId);
-
                 // Check for isNewUser (which would only be relevant for Google OAuth, but let's keep it for future-proofing)
                 // For normal signup, we assume a new user is created and direct to onboarding or dashboard.
                 if (userRole === 'patient') {

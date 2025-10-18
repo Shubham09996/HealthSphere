@@ -34,6 +34,7 @@ export const AuthProvider = ({ children }) => {
 
     const login = (userData) => {
         localStorage.setItem('userInfo', JSON.stringify(userData));
+        localStorage.setItem('jwt', userData.token); // NEW: Store JWT in localStorage here
         setUser(userData);
         if (userData.role === 'Doctor') {
             if (userData.specificProfileId) {
