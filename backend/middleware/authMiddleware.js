@@ -5,10 +5,17 @@ import config from '../config/config.js';
 const protect = async (req, res, next) => {
   let token;
 
-  // Get token from cookie
-  token = req.cookies.jwt;
+  // Check for token in Authorization header (Bearer token)
+  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+    token = req.headers.authorization.split(' ')[1];
+  }
 
-  console.log('Incoming cookies in protect middleware:', req.cookies); // NEW: Log incoming cookies
+  // If no token in header, try getting it from cookie
+  if (!token && req.cookies.jwt) {
+    token = req.cookies.jwt;
+  }
+
+  console.log('Incoming cookies in protect middleware:', req.cookies); // Keep this for now, helpful for debugging
 
   if (!token) {
     res.status(401).json({ message: 'Not authorized, no token' });
