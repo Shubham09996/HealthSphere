@@ -8,6 +8,8 @@ const protect = async (req, res, next) => {
   // Get token from cookie
   token = req.cookies.jwt;
 
+  console.log('Incoming cookies in protect middleware:', req.cookies); // NEW: Log incoming cookies
+
   if (!token) {
     res.status(401).json({ message: 'Not authorized, no token' });
     return; // Stop execution if no token
