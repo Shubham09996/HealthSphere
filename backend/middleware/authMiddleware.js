@@ -6,6 +6,7 @@ const protect = async (req, res, next) => {
   let token;
 
   // Check for token in Authorization header (Bearer token)
+  console.log('Incoming Authorization header:', req.headers.authorization); // NEW: Log Authorization header
   if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
     token = req.headers.authorization.split(' ')[1];
   }
