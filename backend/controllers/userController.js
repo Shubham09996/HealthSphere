@@ -54,6 +54,7 @@ const authUser = asyncHandler(async (req, res) => {
       isVerified: user.isVerified,
       status: user.status,
       specificProfileId: specificProfileId, // Include the role-specific ID
+      token: token, // NEW: Include token in the response
     });
   } else {
     res.status(401);
@@ -142,6 +143,7 @@ const registerUser = asyncHandler(async (req, res) => {
       isVerified: user.isVerified,
       status: user.status,
       specificProfileId: specificProfileId, // Include the role-specific ID
+      token: token, // NEW: Include token in the response
     });
   } else {
     res.status(400);
