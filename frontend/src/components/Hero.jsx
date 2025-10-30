@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate
+import { useAuth } from '../context/AuthContext.jsx'; // Import useAuth hook
 
 const Hero = () => {
   const containerVariants = {
@@ -13,11 +14,17 @@ const Hero = () => {
     visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: "easeOut" } },
   };
 
-  const navigate = useNavigate(); // Initialize useNavigate
+  const navigate = useNavigate();
+  const { user, logout } = useAuth(); // Get user and logout from AuthContext
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
   return (
     <motion.section
-      className="text-center py-8 md:py-12 px-4" // Horizontal padding added here
+      className="text-center py-8 md:py-12 px-4"
       initial="hidden"
       animate="visible"
       variants={containerVariants}
@@ -30,7 +37,6 @@ const Hero = () => {
         <span className="text-foreground/80 font-medium">Integrated Healthcare Platform</span>
       </motion.div>
       <motion.h1
-        // Font sizes adjusted for responsiveness
         className="text-4xl sm:text-5xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-[#0096C7] via-[#2A9D8F] to-[#7E57C2] text-transparent bg-clip-text"
         variants={itemVariants}
       >
@@ -46,15 +52,26 @@ const Hero = () => {
         className="flex flex-col sm:flex-row justify-center items-center gap-4"
         variants={itemVariants}
       >
-        <motion.button 
-          className="w-full sm:w-auto bg-gradient-to-r from-[#0096C7] via-[#2A9D8F] to-[#7E57C2] text-primary-foreground px-5 py-2.5 rounded-md flex items-center justify-center space-x-2 font-medium hover:opacity-90 transition-transform hover:scale-105"
-          whileHover={{ scale: 1.07 }} transition={{ duration: 0.2 }}
-          onClick={() => navigate('/signup')} // Redirect to signup page
-        >
-          <span>Get Started</span>
-          <span className="font-bold text-lg">→</span>
-        </motion.button>
-        <motion.div 
+        {user ? (
+          <motion.button
+            className="w-full sm:w-auto bg-gradient-to-r from-[#0096C7] via-[#2A9D8F] to-[#7E57C2] text-primary-foreground px-5 py-2.5 rounded-md flex items-center justify-center space-x-2 font-medium hover:opacity-90 transition-transform hover:scale-105"
+            whileHover={{ scale: 1.07 }} transition={{ duration: 0.2 }}
+            onClick={handleLogout}
+          >
+            <span>Logout</span>
+          </motion.button>
+        ) : (
+          <motion.button
+            className="w-full sm:w-auto bg-gradient-to-r from-[#0096C7] via-[#2A9D8F] to-[#7E57C2] text-primary-foreground px-5 py-2.5 rounded-md flex items-center justify-center space-x-2 font-medium hover:opacity-90 transition-transform hover:scale-105"
+            whileHover={{ scale: 1.07 }} transition={{ duration: 0.2 }}
+            onClick={() => navigate('/signup')}
+          >
+            <span>Get Started</span>
+            <span className="font-bold text-lg">→</span>
+          </motion.button>
+        )}
+
+        <motion.div
           className="p-0.5 rounded-md bg-gradient-to-r from-[#0096C7] via-[#2A9D8F] to-[#7E57C2]"
           whileHover={{ scale: 1.07 }} transition={{ duration: 0.2 }}
         >
