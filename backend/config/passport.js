@@ -48,7 +48,8 @@ passport.use(
                             role: 'Patient', // Default role for new users via Google
                             isNewUser: true, // Mark as new user
                         };
-                        user = await User.create(newUser); // User is created with isNewUser: true
+                        user = await User.create(newUser);
+                        user.isNewUser = true; // Mark as new user
 
                         // Create a patient profile for new Google users by default
                         if (user) {

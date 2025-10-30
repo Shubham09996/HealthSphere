@@ -146,7 +146,6 @@ function App() {
       navigate('/login', { replace: true });
     }
   }, [user, loading, navigate, location.pathname]);
-
   return (
     <div className="min-h-screen bg-background text-foreground transition-colors duration-300">
       <Routes>

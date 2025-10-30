@@ -47,7 +47,6 @@ export const AuthProvider = ({ children }) => {
                 setLoading(false);
             }
         };
-
         loadUserFromLocalStorage();
 
         // NEW: Listen for localStorage changes
