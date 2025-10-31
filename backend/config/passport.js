@@ -25,6 +25,7 @@ passport.use(
                     // User found by googleId, log them in
                     user.isNewUser = false; // Explicitly set to false for existing users
                     await user.save(); // Save the updated user
+                    user = await User.findById(user._id); // Re-fetch user to ensure specificProfileId is populated
                     done(null, user);
                 } else {
                     // No user with this googleId, check by email
@@ -36,6 +37,7 @@ passport.use(
                         user.profilePicture = profilePicture || user.profilePicture; // Update profile picture if available
                         user.isNewUser = false; // Explicitly set to false for existing users
                         await user.save();
+                        user = await User.findById(user._id); // Re-fetch user to ensure specificProfileId is populated
                         done(null, user);
                     } else {
                         // No user found by googleId or email, create a new one
@@ -55,12 +57,15 @@ passport.use(
                         if (user) {
                             const patientProfile = await Patient.create({
                                 user: user._id,
+                                name: name, // Add the user's name to the patient profile
                                 patientId: `PID-${Math.floor(100000 + Math.random() * 900000)}`,
                                 // other patient defaults if any
                             });
-                            // Assign the generated patientId to the user object
-                            user.specificProfileId = patientProfile.patientId;
-                            await user.save(); // Save the user with the new specificProfileId
+                            // Link the patient profile to the user
+                            user.patient = patientProfile._id; // NEW: Link patient profile
+                            user.specificProfileId = patientProfile.patientId; // Assign specificProfileId
+                            await user.save(); // Save the updated user with patient reference and specificProfileId
+                            user = await User.findById(user._id); // Re-fetch user to ensure specificProfileId is populated in the returned user object
                         }
                         done(null, user);
                     }

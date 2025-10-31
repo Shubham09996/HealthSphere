@@ -22,6 +22,8 @@ import ResetPasswordPage from './pages/ResetPasswordPage.jsx';
 import PatientOnboardingPage from './pages/patient/PatientOnboardingPage.jsx';
 import PrivateRoute from './components/PrivateRoute.jsx';
 import BookTestAppointmentPage from './pages/patient/BookTestAppointmentPage.jsx'; // NEW: Import BookTestAppointmentPage
+import AddFamilyMemberPage from './pages/patient/AddFamilyMemberPage.jsx'; // NEW: Import AddFamilyMemberPage
+import FamilyMemberProfilePage from './pages/patient/FamilyMemberProfilePage.jsx'; // NEW: Import FamilyMemberProfilePage
 
 // Patient Pages
 import PatientDashboardPage from './pages/patient/PatientDashboardPage.jsx';
@@ -182,6 +184,8 @@ function App() {
               <Route path="notifications" element={<NotificationSettings />} />
             </Route>
             <Route path="book-test-appointment" element={<BookTestAppointmentPage />} /> {/* NEW: Book Test Appointment page nested */} 
+            <Route path="add-family-member" element={<AddFamilyMemberPage />} /> {/* NEW: Add Family Member page nested */} 
+            <Route path="family-member-profile/:id" element={<FamilyMemberProfilePage />} /> {/* NEW: Family Member Profile page nested */} 
           </Route>
           <Route path="patient-onboarding/:userId" element={<PatientOnboardingPage />} />
         </Route>

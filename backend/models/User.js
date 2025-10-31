@@ -65,6 +65,11 @@ const userSchema = mongoose.Schema(
     specificProfileId: { // NEW: Add specificProfileId to store patientId, doctorId, shopId
         type: String,
     },
+    patient: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Patient',
+        default: null,
+    },
   },
   {
     timestamps: true,

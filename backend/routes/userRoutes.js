@@ -67,7 +67,6 @@ router.get(
             specificProfileId: req.user.specificProfileId, // Ensure specificProfileId is included
             isNewUser: req.user.isNewUser, // Ensure isNewUser is included
         };
-
         const encodedUserInfo = encodeURIComponent(JSON.stringify(userToSend));
         res.redirect(`http://localhost:5173${redirectPath}?token=${token}&userInfo=${encodedUserInfo}`);
     }

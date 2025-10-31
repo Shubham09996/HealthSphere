@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { Home, Calendar, FileText, Pill, BarChart2, CreditCard, Settings, LifeBuoy, ChevronsLeft, ChevronsRight, User, Ticket, Heart } from 'lucide-react';
+import { Home, Calendar, FileText, Pill, BarChart2, CreditCard, Settings, LifeBuoy, ChevronsLeft, ChevronsRight, User, Ticket, Heart, UserPlus } from 'lucide-react';
 
 const SidebarNavLink = ({ to, icon: Icon, text, isCollapsed, onCloseMobileSidebar }) => (
     <NavLink
@@ -25,6 +25,7 @@ const SidebarNavLink = ({ to, icon: Icon, text, isCollapsed, onCloseMobileSideba
 const PatientSidebar = ({ isCollapsed, toggleCollapse, onCloseMobileSidebar }) => {
     const navItems = [
         { icon: Home, text: 'Dashboard', path: '/patient/dashboard' },
+        { icon: UserPlus, text: 'Add Family Member', path: '/patient/add-family-member' }, // New item
         { icon: Calendar, text: 'Appointments', path: '/patient/appointments' },
         { icon: FileText, text: 'Prescriptions', path: '/patient/prescriptions' },
         { icon: Pill, text: 'Medicine Finder', path: '/patient/medicine-finder' },
