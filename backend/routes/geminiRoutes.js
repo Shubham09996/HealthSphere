@@ -1,14 +1,13 @@
 import express from 'express';
 import multer from 'multer';
-import { getGeminiResponse } from '../controllers/geminiController.js';
+import getGeminiResponse from '../controllers/geminiController.js';
 import { protect } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-// File upload (PDF or Image)
 const upload = multer({
   dest: 'uploads/',
-  limits: { fileSize: 20 * 1024 * 1024 }, // 20MB
+  limits: { fileSize: 20 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
     const allowed = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
     if (allowed.includes(file.mimetype)) cb(null, true);

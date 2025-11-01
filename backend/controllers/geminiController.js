@@ -2,42 +2,47 @@ import asyncHandler from 'express-async-handler';
 import fs from 'fs';
 import { getChatbotResponse } from '../services/geminiService.js';
 
-// @desc    Get Gemini chatbot response (HealthSphere AI Assistant)
-// @route   POST /api/gemini/chat
-// @access  Private
+// @desc   Get Gemini chatbot response
+// @route  POST /api/gemini/chat
+// @access Private
 const getGeminiResponse = asyncHandler(async (req, res) => {
-  const { message, language } = req.body;
-  const file = req.file; // uploaded report (if any)
+  // multer text fields are inside req.body
+  const userMessage = req.body.message;
+  const language = req.body.language || 'en';
+  const file = req.file;
 
-  if (!message && !file) {
-    res.status(400);
-    throw new Error('Message or file is required');
+  if (!userMessage && !file) {
+    return res.status(400).json({
+      success: false,
+      message: 'Please provide a message or upload a file.',
+    });
   }
 
-  const userName = req.user ? req.user.name : 'User'; // from auth middleware
   const uploadedFilePath = file?.path || null;
+  const userName = req.user?.name || 'User';
 
   try {
-    // Call Gemini Service
+    // send everything to Gemini
     const geminiResponse = await getChatbotResponse(
-      message,
+      userMessage,
       userName,
       language,
       uploadedFilePath
     );
 
-    // delete uploaded file after use to save disk
+    // cleanup after processing
     if (uploadedFilePath && fs.existsSync(uploadedFilePath)) {
       fs.unlinkSync(uploadedFilePath);
     }
 
     res.status(200).json({ response: geminiResponse });
   } catch (error) {
-    console.error('Gemini Error:', error.message);
+    console.error('Gemini Error:', error);
     res.status(500).json({
-      error: 'Failed to get Gemini response. Please try again later.',
+      success: false,
+      message: 'Failed to get Gemini response. Please try again later.',
     });
   }
 });
 
-export { getGeminiResponse };
+export default getGeminiResponse;
