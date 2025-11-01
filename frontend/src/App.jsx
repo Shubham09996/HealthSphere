@@ -216,7 +216,7 @@ function App() {
             <Route path="prescriptions" element={<DoctorPrescriptionsPage />} />
             <Route path="profile" element={<DoctorProfilePage />} />
             <Route path="notifications" element={<DoctorNotificationsPage />} />
-            <Route path="prescribe/:patientId" element={<PrescriptionWriter />} /> {/* New route for PrescriptionWriter */}
+            <Route path="prescriptions/new" element={<PrescriptionWriter />} /> {/* New route for PrescriptionWriter */}
             <Route path="settings" element={<DoctorSettingsPage />}>
               <Route index element={<Navigate to="profile" replace />} />
               <Route path="profile" element={<DoctorProfileSettings />} />

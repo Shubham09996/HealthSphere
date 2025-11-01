@@ -17,7 +17,7 @@ const PatientQueueCard = ({ patient }) => {
     return (
         <div className="bg-card p-4 rounded-xl border border-border flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-                <img src={patient.pfp || 'https://via.placeholder.com/100'} alt={patient.name} className="w-12 h-12 rounded-full object-cover"/>
+                <img src={patient.profilePicture || 'https://via.placeholder.com/100'} alt={patient.name} className="w-12 h-12 rounded-full object-cover"/>
                 <div>
                     <p className="font-semibold text-foreground">{patient.name}</p>
                     <p className="text-sm text-muted-foreground">Patient ID: {patient.patientId}</p>
