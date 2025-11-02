@@ -83,7 +83,7 @@ const Hero = () => {
               transition={{ delay: 0.8, duration: 0.6 }}
               className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start"
             >
-              <Button size="lg" className="shadow-lg">
+              <Button size="lg" className="shadow-lg" style={{ marginLeft: "30px" }}>
                 Get Started
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>

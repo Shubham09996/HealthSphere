@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 
 const RoleCard = ({ icon, title, description, borderColor, onAccessDashboard }) => (
   <motion.div
-    className={`bg-card rounded-xl shadow-lg border-t-4 ${borderColor} p-6 flex flex-col items-start space-y-4 min-h-[200px] justify-between`}
+    className={`bg-slate-900 rounded-xl shadow-lg border-t-4 ${borderColor} p-6 flex flex-col items-start space-y-4 min-h-[200px] justify-between`}
     initial={{ opacity: 0, y: 70 }} // Increased y
     whileInView={{ opacity: 1, y: 0 }}
     viewport={{ once: true, amount: 0.3 }}
@@ -13,19 +13,19 @@ const RoleCard = ({ icon, title, description, borderColor, onAccessDashboard }) 
     whileHover={{ scale: 1.04, transition: { duration: 0.3 } }} // More prominent hover
   >
     <div className="flex flex-col items-start space-y-2">
-      <div className="text-primary mb-2">
+      <div className="text-blue-400 mb-2">
         {icon}
       </div>
-      <h3 className="text-xl font-semibold text-foreground">{title}</h3>
-      <p className="text-muted-foreground text-sm">{description}</p>
+      <h3 className="text-xl font-semibold text-white">{title}</h3>
+      <p className="text-gray-300 text-sm">{description}</p>
     </div>
     <motion.button 
-      className="text-primary hover:underline flex items-center space-x-1 text-sm font-medium cursor-pointer"
+      className="text-blue-400 hover:text-blue-300 hover:underline flex items-center space-x-1 text-sm font-medium cursor-pointer"
       whileHover={{ x: 5 }} 
       transition={{ duration: 0.2 }}
       onClick={onAccessDashboard}
     >
-      <span>Access Dashboard</span>
+      <span>Access Feature</span>
       <span className="text-lg">→</span>
     </motion.button>
   </motion.div>
