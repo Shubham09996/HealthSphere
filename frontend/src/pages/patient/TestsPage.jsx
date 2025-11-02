@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, FlaskConical, FileText } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import BookedTestsResults from '../../components/tests/BookedTestsResults';
 import TestReportsResults from '../../components/tests/TestReportsResults';
+import { useAuth } from '../../context/AuthContext';
+import axios from 'axios';
 
 const tabs = [
     { id: 'booked', label: 'Booked Tests', icon: FlaskConical },
@@ -12,6 +14,33 @@ const tabs = [
 const TestsPage = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [activeTab, setActiveTab] = useState('booked');
+    const [labTestOrders, setLabTestOrders] = useState([]);
+    const { user } = useAuth();
+
+    useEffect(() => {
+        const fetchLabTestOrders = async () => {
+            if (!user || !user._id || !user.patientId) {
+                console.log("TestsPage: User or patient ID not available, skipping lab test order fetch.");
+                return;
+            }
+            try {
+                const apiUrl = `/api/patients/${user.patientId}/lab-test-orders`;
+                console.log("TestsPage Frontend: Calling API for lab test orders:", apiUrl);
+                const { data } = await axios.get(apiUrl, {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem('userInfo') ? JSON.parse(localStorage.getItem('userInfo')).token : ''}`,
+                    },
+                });
+                console.log("TestsPage Frontend: Received raw data for lab test orders:", data);
+                setLabTestOrders(data); // The new endpoint returns the array directly
+                console.log("TestsPage Frontend: Updated labTestOrders state:", data);
+            } catch (error) {
+                console.error('Error fetching lab test orders:', error);
+            }
+        };
+
+        fetchLabTestOrders();
+    }, [user]);
 
     return (
         <div className="max-w-6xl mx-auto">
@@ -60,9 +89,9 @@ const TestsPage = () => {
                         transition={{ duration: 0.3 }}
                     >
                         {activeTab === 'booked' ? (
-                            <BookedTestsResults searchTerm={searchTerm} />
+                            <BookedTestsResults searchTerm={searchTerm} labTestOrders={labTestOrders} />
                         ) : (
-                            <TestReportsResults searchTerm={searchTerm} />
+                            <TestReportsResults searchTerm={searchTerm} labTestOrders={labTestOrders} />
                         )}
                     </motion.div>
                 </AnimatePresence>

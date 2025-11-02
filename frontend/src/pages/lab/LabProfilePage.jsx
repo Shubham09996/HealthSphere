@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'; // NEW: Import useState and useEffect
-import { User, Mail, Phone, Building, MapPin } from 'lucide-react';
+import { User, Mail, Phone, Building, MapPin, FlaskConical, PlusCircle, Trash2 } from 'lucide-react'; // NEW: Import FlaskConical, PlusCircle, Trash2
 import { motion } from 'framer-motion'; // NEW: Import motion
 import api from '../../utils/api'; // NEW: Import api
 import { useAuth } from '../../context/AuthContext'; // NEW: Import useAuth
@@ -17,6 +17,10 @@ const LabProfilePage = () => {
   const [phone, setPhone] = useState('');
   const [address, setAddress] = useState('');
   const [website, setWebsite] = useState('');
+  const [testsOffered, setTestsOffered] = useState([]); // NEW: State for tests offered
+  const [newTest, setNewTest] = useState({
+    testName: '', testType: '', price: 0
+  }); // NEW: State for new test input
 
   useEffect(() => {
     const fetchLabProfile = async () => {
@@ -36,6 +40,7 @@ const LabProfilePage = () => {
         setPhone(fetchedProfile.phone || '');
         setAddress(fetchedProfile.address || '');
         setWebsite(fetchedProfile.website || '');
+        setTestsOffered(fetchedProfile.testsOffered || []); // NEW: Initialize testsOffered
 
       } catch (err) {
         console.error('Failed to fetch lab profile:', err);
@@ -57,6 +62,7 @@ const LabProfilePage = () => {
         phone,
         address,
         website,
+        testsOffered, // NEW: Include testsOffered in updated data
       };
       const response = await api.put(`/api/labs/profile/${user.lab._id}`, updatedData);
       setLabProfile(response.data); // Update local state with updated profile from backend
@@ -76,8 +82,32 @@ const LabProfilePage = () => {
       setPhone(labProfile.phone || '');
       setAddress(labProfile.address || '');
       setWebsite(labProfile.website || '');
+      setTestsOffered(labProfile.testsOffered || []); // NEW: Revert testsOffered
     }
     setIsEditing(false); // Exit edit mode
+  };
+
+  const handleNewTestChange = (e) => {
+    setNewTest({ ...newTest, [e.target.name]: e.target.value });
+  };
+
+  const handleAddTest = () => {
+    if (newTest.testName && newTest.testType && newTest.price >= 0) { // Changed condition
+      setTestsOffered([...testsOffered, newTest]); // Use newTest directly
+      setNewTest({ testName: '', testType: '', price: 0 }); // Clear form
+    } else {
+      toast.error('Test Name, Test Type, and Price are required, and price must be non-negative.'); // Updated error message
+    }
+  };
+
+  const handleDeleteTest = (index) => {
+    setTestsOffered(testsOffered.filter((_, i) => i !== index));
+  };
+
+  const handleTestChange = (index, field, value) => {
+    const updatedTests = [...testsOffered];
+    updatedTests[index][field] = value;
+    setTestsOffered(updatedTests);
   };
 
   // Framer Motion variants
@@ -200,6 +230,75 @@ const LabProfilePage = () => {
                   labProfile.website ? <a href={labProfile.website} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">{labProfile.website}</a> : 'N/A'
                 )}
               </p>
+            </motion.div>
+            <motion.div variants={itemVariants} className="pt-4 border-t border-border mt-4">
+              <h3 className="text-lg font-semibold mb-2 flex items-center gap-2"><FlaskConical className="h-5 w-5"/> Tests Offered</h3>
+              {isEditing ? (
+                <div className="space-y-3">
+                  {testsOffered.map((test, index) => (
+                    <div key={index} className="bg-muted/30 p-4 rounded-lg flex items-center justify-between">
+                      <div className="flex-1">
+                        <input
+                          type="text"
+                          value={test.testName}
+                          onChange={(e) => handleTestChange(index, 'testName', e.target.value)}
+                          className="w-full p-2 border border-border rounded-md bg-background text-foreground text-sm"
+                        />
+                        <input
+                          type="text"
+                          value={test.testType}
+                          onChange={(e) => handleTestChange(index, 'testType', e.target.value)}
+                          className="w-full p-2 border border-border rounded-md bg-background text-foreground text-xs mt-1"
+                        />
+                        <input
+                          type="number"
+                          value={test.price}
+                          onChange={(e) => handleTestChange(index, 'price', parseFloat(e.target.value))}
+                          className="w-full p-2 border border-border rounded-md bg-background text-foreground text-xs mt-1"
+                        />
+                      </div>
+                      <button onClick={() => handleDeleteTest(index)} className="text-red-500 hover:text-red-700"><Trash2 size={18}/></button>
+                    </div>
+                  ))}
+                  <div className="flex flex-col gap-2 p-3 border border-dashed border-border rounded-md">
+                    <input
+                      type="text"
+                      name="testName"
+                      placeholder="Test Name"
+                      value={newTest.testName}
+                      onChange={handleNewTestChange}
+                      className="w-full p-2 border border-border rounded-md bg-background text-foreground text-sm"
+                    />
+                    <input
+                      type="text"
+                      name="testType"
+                      placeholder="Test Type"
+                      value={newTest.testType}
+                      onChange={handleNewTestChange}
+                      className="w-full p-2 border border-border rounded-md bg-background text-foreground text-sm"
+                    />
+                    <input
+                      type="number"
+                      name="price"
+                      placeholder="Price"
+                      value={newTest.price}
+                      onChange={handleNewTestChange}
+                      className="w-full p-2 border border-border rounded-md bg-background text-foreground text-sm"
+                    />
+                    <button onClick={handleAddTest} className="flex items-center justify-center gap-2 px-4 py-2 bg-hs-gradient-middle text-white rounded-md hover:opacity-90 transition-opacity mt-2"><PlusCircle size={18}/> Add Test</button>
+                  </div>
+                </div>
+              ) : (
+                testsOffered.length > 0 ? (
+                  <ul className="list-disc list-inside space-y-1 text-muted-foreground">
+                    {testsOffered.map((test, index) => (
+                      <li key={index}>{test.testName} ({test.testType}) - ₹{test.price}</li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-muted-foreground">No tests offered yet.</p>
+                )
+              )}
             </motion.div>
             {/* Description field is not in Lab model, so commenting out for now */}
             {/* <motion.div variants={itemVariants} className="pt-4 border-t border-border mt-4">

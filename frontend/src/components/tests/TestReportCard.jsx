@@ -1,28 +1,14 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { FileText, Download, Calendar, MapPin, TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { FileText, Download, Calendar, MapPin } from 'lucide-react';
+
+// Removed getValueStatus function
 
 const TestReportCard = ({ result }) => {
-    const getValueStatus = (value, range) => {
-        // Simple heuristic: if value is less than range start or greater than range end, it's abnormal
-        // This is a simplified version - actual implementation would depend on the test type
-        const rangeNum = range.replace(/[<>\s]/g, '');
-        if (range.includes('<')) {
-            const threshold = parseFloat(rangeNum);
-            const valueNum = parseFloat(value);
-            if (valueNum >= threshold) return 'high';
-        } else if (range.includes('>')) {
-            const threshold = parseFloat(rangeNum);
-            const valueNum = parseFloat(value);
-            if (valueNum <= threshold) return 'low';
-        } else if (range.includes('-')) {
-            const [min, max] = range.split('-').map(v => parseFloat(v.trim()));
-            const valueNum = parseFloat(value);
-            if (valueNum < min) return 'low';
-            if (valueNum > max) return 'high';
-        }
-        return 'normal';
-    };
+    const completionDate = new Date(result.completionDate);
+    const reportedOn = completionDate.toLocaleDateString();
+
+    const isFileUrl = result.result && (result.result.startsWith('http://') || result.result.startsWith('https://'));
 
     return (
         <motion.div
@@ -44,47 +30,36 @@ const TestReportCard = ({ result }) => {
                 </div>
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
                     <Calendar size={12} />
-                    <span>{result.reportedOn}</span>
+                    <span>{reportedOn}</span>
                 </div>
             </div>
 
-            {result.summary && (
+            {result.result && (
                 <p className="text-sm text-muted-foreground bg-muted/50 p-3 rounded-lg">
-                    {result.summary}
+                    {result.result}
                 </p>
             )}
 
-            <div className="border-t border-border pt-4">
-                <h4 className="text-sm font-semibold text-foreground mb-3">Results:</h4>
-                <div className="space-y-2">
-                    {result.results.map((res, idx) => {
-                        const status = getValueStatus(res.value, res.range);
-                        const StatusIcon = status === 'high' ? TrendingUp : status === 'low' ? TrendingDown : Minus;
-                        const statusColor = status === 'high' || status === 'low' ? 'text-amber-500' : 'text-emerald-500';
-                        
-                        return (
-                            <div key={idx} className="flex items-center justify-between p-2 bg-background rounded-md">
-                                <div className="flex-1">
-                                    <p className="text-sm font-medium text-foreground">{res.name}</p>
-                                    <p className="text-xs text-muted-foreground">{res.range}</p>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <StatusIcon size={14} className={statusColor} />
-                                    <span className="text-sm font-semibold text-foreground">{res.value}</span>
-                                </div>
-                            </div>
-                        );
-                    })}
-                </div>
-            </div>
+            {/* Removed the detailed results section */}
 
             <div className="mt-auto pt-2">
-                <a 
-                    href={result.fileUrl} 
-                    className="inline-flex items-center justify-center gap-2 w-full font-bold py-2.5 px-4 rounded-lg bg-gradient-to-r from-hs-gradient-start via-hs-gradient-middle to-hs-gradient-end text-white hover:opacity-90 transition-opacity"
-                >
-                    <Download size={16} /> Download Report
-                </a>
+                {isFileUrl ? (
+                    <a 
+                        href={result.result} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center justify-center gap-2 w-full font-bold py-2.5 px-4 rounded-lg bg-gradient-to-r from-hs-gradient-start via-hs-gradient-middle to-hs-gradient-end text-white hover:opacity-90 transition-opacity"
+                    >
+                        <Download size={16} /> Download Report
+                    </a>
+                ) : (
+                    <button 
+                        disabled 
+                        className="inline-flex items-center justify-center gap-2 w-full font-bold py-2.5 px-4 rounded-lg bg-gray-300 text-gray-500 cursor-not-allowed"
+                    >
+                        <Download size={16} /> No Report Available
+                    </button>
+                )}
             </div>
         </motion.div>
     );

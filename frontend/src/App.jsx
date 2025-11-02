@@ -134,15 +134,39 @@ function App() {
   useEffect(() => {
     // Ensure user is logged in, not loading, and it's the immediate redirect after initial auth.
     if (!loading && user && processedRedirectRef.current) {
-      let redirectPath;
-      if (user.isNewUser && user.role?.toLowerCase() === 'patient') {
-        redirectPath = `/patient-onboarding/${user._id}`;
-      } else if (user.isNewUser && user.role?.toLowerCase() === 'hospital') { // NEW: Redirect new Hospital users to onboarding
-        redirectPath = `/hospital/onboarding/${user._id}`;
+      const userRole = user.role?.toLowerCase();
+
+      // Removed onboarding specific redirect, now handled by LabProfilePage
+      // if (user.isNewUser && userRole === 'lab') {
+      //   const redirectPath = `/lab-onboarding/${user._id}`;
+      //   console.log(`App.jsx - Redirecting new ${user.role} to onboarding. Navigating to: ${redirectPath}`);
+      //   if (location.pathname !== redirectPath) {
+      //     navigate(redirectPath);
+      //     processedRedirectRef.current = true; // Mark as processed
+      //   } else {
+      //     console.log('App.jsx - Already on target path:', redirectPath);
+      //   }
+      // } else
+      if (!user.isNewUser && location.pathname.includes('onboarding')) { // If user is onboarded but on an onboarding page
+        const dashboardPath = `/${userRole}/dashboard`;
+        console.log(`App.jsx - User is onboarded but on onboarding page. Redirecting to: ${dashboardPath}`);
+        if (location.pathname !== dashboardPath) {
+          navigate(dashboardPath);
+        } else {
+          console.log('App.jsx - Already on target path:', dashboardPath);
+        }
+      } else if (!user.isNewUser && !location.pathname.startsWith(`/${userRole}`)) {
+        // If user is logged in, not new, and not on their role's dashboard, redirect to their dashboard.
+        const dashboardPath = `/${userRole}/dashboard`;
+        console.log(`App.jsx - User is not new, redirecting to dashboard. Navigating to: ${dashboardPath}`);
+        if (location.pathname !== dashboardPath) {
+          navigate(dashboardPath);
+        } else {
+          console.log('App.jsx - Already on target path:', dashboardPath);
+        }
       } else {
-        redirectPath = `/${user.role?.toLowerCase()}/dashboard`;
+        console.log('App.jsx - No special redirect needed or already on correct path.');
       }
-      navigate(redirectPath, { replace: true });
       processedRedirectRef.current = false; // Reset to allow public route access after initial dashboard redirect
     }
   }, [user, loading, navigate]);

@@ -24,7 +24,7 @@ const getLabProfile = asyncHandler(async (req, res) => {
 // @route   PUT /api/labs/:id/profile
 // @access  Private/Lab
 const updateLabProfile = asyncHandler(async (req, res) => {
-  const { name, address, phone, email, website } = req.body;
+  const { name, address, phone, email, website, testsOffered } = req.body; // NEW: Add testsOffered
 
   const lab = await Lab.findById(req.params.id);
 
@@ -34,8 +34,18 @@ const updateLabProfile = asyncHandler(async (req, res) => {
     lab.phone = phone || lab.phone;
     lab.email = email || lab.email;
     lab.website = website || lab.website;
+    lab.testsOffered = testsOffered !== undefined ? testsOffered : lab.testsOffered; // Ensure testsOffered is always updated if provided
 
     const updatedLab = await lab.save();
+
+    // NEW: Check if the associated user is a new user and mark as onboarded if tests are offered
+    const user = await User.findById(req.user._id); // Assuming req.user is populated by protect middleware
+    if (user && user.isNewUser && updatedLab.testsOffered && updatedLab.testsOffered.length > 0) {
+      console.log(`LabController - updateLabProfile: User ${user._id} is new and has offered tests. Marking as onboarded.`);
+      user.isNewUser = false;
+      await user.save();
+      console.log(`LabController - updateLabProfile: User ${user._id} isNewUser set to false.`);
+    }
 
     res.json({
       _id: updatedLab._id,
@@ -45,6 +55,7 @@ const updateLabProfile = asyncHandler(async (req, res) => {
       phone: updatedLab.phone,
       email: updatedLab.email,
       website: updatedLab.website,
+      testsOffered: updatedLab.testsOffered, // NEW: Include testsOffered in response
     });
   } else {
     res.status(404);
@@ -287,6 +298,56 @@ const getLabReports = asyncHandler(async (req, res) => {
   res.status(200).json(reports);
 });
 
+// @desc    Get all labs for public viewing (patients)
+// @route   GET /api/labs/available
+// @access  Public
+const getAvailableLabs = asyncHandler(async (req, res) => {
+  const labs = await Lab.find({}).select('_id name address phone email website'); // Select relevant fields for public view
+  res.json(labs);
+});
+
+// @desc    Get tests offered by a specific lab
+// @route   GET /api/labs/:labId/tests
+// @access  Public
+const getLabTests = asyncHandler(async (req, res) => {
+  const lab = await Lab.findById(req.params.labId).select('testsOffered');
+
+  if (lab) {
+    res.json(lab.testsOffered);
+  } else {
+    res.status(404);
+    throw new Error('Lab not found');
+  }
+});
+
+// @desc    Create a new lab test order (patient-facing)
+// @route   POST /api/lab-test-orders
+// @access  Private/Patient
+const createLabTestOrder = asyncHandler(async (req, res) => {
+  const { labId, testName, testType, price, orderDate } = req.body;
+
+  // Get patient ID from authenticated user
+  const patient = await Patient.findOne({ user: req.user._id });
+
+  if (!patient) {
+    res.status(404);
+    throw new Error('Patient profile not found');
+  }
+
+  const labTestOrder = new LabTestOrder({
+    patient: patient._id,
+    lab: labId,
+    testName,
+    testType,
+    price,
+    orderDate,
+    status: 'Pending', // Initial status
+  });
+
+  const createdLabTestOrder = await labTestOrder.save();
+  res.status(201).json(createdLabTestOrder);
+});
+
 export {
   getLabProfile,
   updateLabProfile,
@@ -302,4 +363,7 @@ export {
   generateLabReport, // NEW: Export generateLabReport
   uploadLabReport, // NEW: Export uploadLabReport
   getLabReports, // NEW: Export getLabReports
+  getAvailableLabs, // NEW: Export getAvailableLabs
+  getLabTests, // NEW: Export getLabTests
+  createLabTestOrder, // NEW: Export createLabTestOrder
 };

@@ -6,4 +6,9 @@ export default defineConfig({
   plugins: [react()],
   // Add envPrefix to expose VITE_GOOGLE_CLIENT_ID and VITE_API_BASE_URL
   envPrefix: ['VITE_', 'GOOGLE_CLIENT_ID'],
+  server: {
+    proxy: {
+      '/api': 'http://localhost:5000',
+    },
+  },
 })

@@ -16,9 +16,20 @@ import {
   generateLabReport,
   uploadLabReport,
   getLabReports,
+  getAvailableLabs, // NEW: Import getAvailableLabs
+  getLabTests, // NEW: Import getLabTests
+  createLabTestOrder, // NEW: Import createLabTestOrder
 } from '../controllers/labController.js';
 
 import { protect, authorizeRoles } from '../middleware/authMiddleware.js';
+
+// Public routes (for patients to view available labs)
+router.route('/available').get(getAvailableLabs);
+
+router.route('/:labId/tests').get(getLabTests); // NEW: Route to get tests offered by a lab
+
+// NEW: Route for booking a lab test (patient-facing)
+router.route('/lab-test-orders').post(protect, authorizeRoles('Patient'), createLabTestOrder);
 
 // Admin routes
 router.route('/').get(protect, authorizeRoles('Admin'), getLabs);

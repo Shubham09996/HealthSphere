@@ -238,6 +238,12 @@ const SignupPage = () => {
             toast.error('Please select a hospital for the doctor.'); // Using toast for consistency
             return;
         }
+
+        // NEW: Check for hospital selection for Lab role as well
+        if (selectedRole === 'Lab' && !selectedHospital) {
+            toast.error('Please select a hospital for the lab.');
+            return;
+        }
         setLoading(true); // Set loading to true
 
         // Removed the hardcoded frontend-only Hospital registration bypass
@@ -253,8 +259,8 @@ const SignupPage = () => {
             if (avatar) {
                 formData.append('profilePicture', avatar);
             }
-            if (selectedRole === 'Doctor' && selectedHospital) {
-                formData.append('hospital', selectedHospital);
+            if ((selectedRole === 'Doctor' || selectedRole === 'Lab') && selectedHospital) { // NEW: Include Lab role
+                formData.append('hospitalId', selectedHospital); // Changed to hospitalId
             }
 
             const res = await api.post('/api/users', formData, {
@@ -426,8 +432,8 @@ const SignupPage = () => {
                             value={email} onChange={(e) => setEmail(e.target.value)} />
                         <Mail size={20} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-hs-gradient-middle transition-colors" />
                     </div>
-                    {/* Hospital Selection for Doctor Role */}
-                    {selectedRole === 'Doctor' && (
+                    {/* Hospital Selection for Doctor and Lab Roles */}
+                    {(selectedRole === 'Doctor' || selectedRole === 'Lab') && (
                         <div className="relative group">
                             <select
                                 id="hospital-signup"

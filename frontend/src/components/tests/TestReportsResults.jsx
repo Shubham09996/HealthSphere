@@ -1,21 +1,30 @@
 import React, { useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { testReports } from '../../data/testsData';
 import TestReportCard from './TestReportCard';
 
-const TestReportsResults = ({ searchTerm }) => {
+const TestReportsResults = ({ searchTerm, labTestOrders = [] }) => {
+    const reportsWithResults = useMemo(() => {
+        if (!labTestOrders || !Array.isArray(labTestOrders)) {
+            return [];
+        }
+        return labTestOrders.filter(order => order.result && order.result.trim() !== '');
+    }, [labTestOrders]);
+
     const searchResults = useMemo(() => {
-        if (!searchTerm.trim()) {
-            // Show all test reports when no search term
-            return testReports;
+        if (!reportsWithResults || !Array.isArray(reportsWithResults)) {
+            return [];
         }
 
-        return testReports.filter(report =>
+        if (!searchTerm.trim()) {
+            return reportsWithResults;
+        }
+
+        return reportsWithResults.filter(report =>
             report.testName.toLowerCase().includes(searchTerm.toLowerCase()) ||
             report.labName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            report.summary.toLowerCase().includes(searchTerm.toLowerCase())
+            report.result.toLowerCase().includes(searchTerm.toLowerCase())
         );
-    }, [searchTerm]);
+    }, [searchTerm, reportsWithResults]);
 
     return (
         <motion.div 
@@ -25,7 +34,7 @@ const TestReportsResults = ({ searchTerm }) => {
             variants={{ visible: { transition: { staggerChildren: 0.1 } } }}
         >
             {searchResults.length > 0 ? (
-                searchResults.map(result => <TestReportCard key={result.id} result={result} />)
+                searchResults.map(result => <TestReportCard key={result._id} result={result} />)
             ) : (
                 <div className="md:col-span-2 text-center py-12 bg-card rounded-lg text-muted-foreground">
                     {searchTerm.trim() 

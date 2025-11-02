@@ -34,8 +34,13 @@ const protect = async (req, res, next) => {
 
     // Get user from the token
     req.user = await User.findById(decoded.id).select('-password'); // Corrected to decoded.id
-    console.log('protect: Fetched req.user:', req.user);
-    console.log('authMiddleware: req.user.role:', req.user.role); // NEW: Log user role
+    if (req.user) {
+      req.user.isNewUser = req.user.isNewUser === undefined ? false : req.user.isNewUser;
+    }
+
+    console.log('AuthMiddleware - Protect: Fetched req.user:', req.user);
+    console.log('AuthMiddleware - Protect: req.user.role:', req.user.role);
+    console.log('AuthMiddleware - Protect: req.user.isNewUser:', req.user.isNewUser); // NEW: Log isNewUser
 
     next();
   } catch (error) {
@@ -47,12 +52,15 @@ const protect = async (req, res, next) => {
 
 const authorizeRoles = (...roles) => {
   return (req, res, next) => {
-    console.log('authorizeRoles: Start');
-    console.log('authorizeRoles: req.user.role:', req.user?.role);
-    console.log('authorizeRoles: allowed roles:', roles);
+    console.log('AuthMiddleware - AuthorizeRoles: Start');
+    console.log('AuthMiddleware - AuthorizeRoles: req.user object in AuthorizeRoles:', req.user); // NEW: Log entire req.user
+    console.log('AuthMiddleware - AuthorizeRoles: req.user.role:', req.user?.role);
+    console.log('AuthMiddleware - AuthorizeRoles: Allowed roles:', roles);
     if (!req.user || !roles.includes(req.user.role)) {
+      console.log('AuthMiddleware - AuthorizeRoles: Authorization failed.');
       return res.status(403).json({ message: `User role ${req.user?.role || 'undefined'} is not authorized to access this route` });
     }
+    console.log('AuthMiddleware - AuthorizeRoles: Authorization successful.');
     next();
   };
 };

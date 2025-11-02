@@ -29,6 +29,18 @@ const LabSchema = mongoose.Schema(
     website: {
       type: String,
     },
+    hospital: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Hospital',
+      required: false, // Make it optional for now, can be changed to true later if all labs must belong to a hospital
+    },
+    testsOffered: [
+      {
+        testName: { type: String, required: true },
+        testType: { type: String },
+        price: { type: Number, required: true, default: 0 },
+      },
+    ],
     // Add other lab-specific fields as needed
   },
   { 

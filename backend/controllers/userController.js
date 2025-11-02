@@ -76,7 +76,7 @@ const authUser = asyncHandler(async (req, res) => {
 // @route   POST /api/users
 // @access  Public
 const registerUser = asyncHandler(async (req, res) => {
-  const { fullName, email, password, role, phoneNumber, hospital } = req.body;
+  const { fullName, email, password, role, phoneNumber, hospitalId } = req.body; // NEW: Add hospitalId
   const profilePictureFile = req.file; // Get the uploaded file from multer
 
   let validatedRole = 'Patient'; // Default role
@@ -134,13 +134,13 @@ const registerUser = asyncHandler(async (req, res) => {
         await user.save(); // Save the user with the linked patient ID
     } else if (validatedRole === 'Doctor') {
         // For doctors, create a doctor profile with the associated hospital
-        if (!hospital) {
+        if (!hospitalId) {
             res.status(400);
             throw new Error('Hospital is required for doctor registration');
         }
         const doctorProfile = await Doctor.create({
             user: user._id,
-            hospital: hospital, // Associate doctor with the selected hospital
+            hospital: hospitalId, // Associate doctor with the selected hospital
             name: fullName, // Assuming doctor also has a name field
             medicalRegistrationNumber: `MRN-${Date.now()}`,
             specialty: 'General Medicine', // Placeholder
@@ -166,6 +166,8 @@ const registerUser = asyncHandler(async (req, res) => {
             name: fullName,
             labId: `LAB-${Date.now()}`,
             email: email, // NEW: Assign the email from registration to the lab profile
+            hospital: hospitalId, // NEW: Associate lab with the selected hospital
+            testsOffered: [], // Initialize testsOffered as an empty array
             // Add other required lab fields if any
         });
         specificProfileId = labProfile._id;

@@ -476,4 +476,30 @@ const getUpcomingAppointments = asyncHandler(async (req, res) => {
     })) });
 });
 
-export { getPatients, getPatientProfile, updatePatientProfile, createPatientProfile, deletePatientProfile, getPatientDashboardStats, updateRewardPoints, getUpcomingAppointments };
+const getPatientLabTestOrders = asyncHandler(async (req, res) => {
+  const patientId = req.params.id; // Patient ID from the route parameter
+
+  const patient = await Patient.findById(patientId);
+  if (!patient) {
+    res.status(404);
+    throw new Error('Patient not found');
+  }
+
+  // Authorization: Ensure the logged-in user is the patient or an Admin
+  if (req.user.role !== 'Admin' && patient.user.toString() !== req.user._id.toString()) {
+    res.status(403);
+    throw new Error('Not authorized to view these lab test orders');
+  }
+
+  const labTestOrders = await LabTestOrder.find({ patient: patient._id })
+    .populate({
+      path: 'lab',
+      select: 'name address phone', // Populate lab details
+    })
+    .sort({ orderDate: -1 });
+
+  console.log(`Lab test orders for patient ${patientId}:`, labTestOrders);
+  res.json(labTestOrders);
+});
+
+export { getPatients, getPatientProfile, updatePatientProfile, createPatientProfile, deletePatientProfile, getPatientDashboardStats, updateRewardPoints, getUpcomingAppointments, getPatientLabTestOrders };

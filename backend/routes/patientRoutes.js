@@ -10,6 +10,7 @@ import {
   getPatientDashboardStats,
   updateRewardPoints,
   getUpcomingAppointments,
+  getPatientLabTestOrders,
 } from '../controllers/patientController.js';
 import { protect, authorizeRoles } from '../middleware/authMiddleware.js';
 
@@ -17,6 +18,9 @@ router.route('/').get(protect, authorizeRoles('Admin', 'Doctor'), getPatients).p
 router.route('/dashboard-stats').get(protect, authorizeRoles('Patient'), getPatientDashboardStats);
 router.route('/upcoming-appointments').get(protect, authorizeRoles('Patient'), getUpcomingAppointments);
 router.route('/:id/reward-points').put(protect, authorizeRoles('Admin', 'Doctor'), updateRewardPoints);
+
+// NEW: Route to get patient lab test orders
+router.route('/:id/lab-test-orders').get(protect, authorizeRoles('Patient'), getPatientLabTestOrders); // NEW: Get lab test orders
 
 // NEW: Route to get patient profile by userId
 router.route('/user/:userId').get(protect, getPatientProfile); // Using existing getPatientProfile controller

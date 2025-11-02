@@ -4,16 +4,21 @@ import { FlaskConical, Calendar, Clock, MapPin, Hash } from 'lucide-react';
 
 const StatusPill = ({ status }) => {
     const map = {
-        'Scheduled': 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
-        'Pending Sample': 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300',
-        'Confirmed': 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300',
-        'Completed': 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300'
+        'Pending': 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
+        'Sample Collected': 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300',
+        'In Progress': 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300',
+        'Completed': 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300',
+        'Cancelled': 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300',
     };
     const cls = map[status] || 'bg-muted text-foreground';
     return <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${cls}`}>{status}</span>;
 };
 
 const BookedTestCard = ({ result }) => {
+    const orderDate = new Date(result.orderDate);
+    const scheduledDate = orderDate.toLocaleDateString();
+    const scheduledTime = orderDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
     return (
         <motion.div
             variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
@@ -26,25 +31,24 @@ const BookedTestCard = ({ result }) => {
                 <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-3">
                     <div>
                         <h3 className="font-bold text-lg text-foreground">{result.testName}</h3>
-                        <div className="flex items-center gap-2 mt-1 text-sm text-muted-foreground">
-                            <MapPin size={14} />
-                            <span>{result.labName}</span>
-                        </div>
+                        <p className="mt-1 text-sm text-muted-foreground">Lab: {result.lab.name}</p>
+                        {result.lab.address && (
+                            <div className="flex items-center gap-2 mt-1 text-sm text-muted-foreground">
+                                <MapPin size={14} />
+                                <span>{result.lab.address}</span>
+                            </div>
+                        )}
                     </div>
                     <StatusPill status={result.status} />
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-4">
                     <div className="flex items-center gap-2 text-sm">
                         <Calendar size={14} className="text-primary" />
-                        <span className="text-muted-foreground">{result.scheduledDate}</span>
+                        <span className="text-muted-foreground">{scheduledDate}</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm">
                         <Clock size={14} className="text-primary" />
-                        <span className="text-muted-foreground">{result.scheduledTime}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm col-span-2 sm:col-span-1">
-                        <Hash size={14} className="text-primary" />
-                        <span className="text-muted-foreground text-xs">{result.bookingRef}</span>
+                        <span className="text-muted-foreground">{scheduledTime}</span>
                     </div>
                 </div>
             </div>
