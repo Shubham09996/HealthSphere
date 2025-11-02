@@ -57,6 +57,7 @@ import DoctorProfilePage from './pages/doctor/DoctorProfilePage.jsx';
 import DoctorNotificationsPage from './pages/doctor/DoctorNotificationsPage.jsx';
 import SchedulePage from './pages/doctor/SchedulePage.jsx'; // NEW: Import SchedulePage
 import PatientHistoryPage from './pages/doctor/PatientHistoryPage.jsx'; // NEW: Import PatientHistoryPage
+import TestReportPage from './pages/doctor/TestReportPage.jsx'; // NEW: Import TestReportPage
 
 // Shop Pages
 import ShopDashboardPage from './pages/shop/ShopDashboardPage.jsx';
@@ -219,6 +220,7 @@ function App() {
             <Route path="prescriptions" element={<DoctorPrescriptionsPage />} />
             <Route path="prescriptions/new" element={<PrescriptionWriter />} /> {/* NEW: Route for creating a new prescription */}
             <Route path="prescribe/:patientId" element={<PrescriptionWriter />} /> {/* NEW: Route for prescribing to a specific patient */}
+            <Route path="test-reports" element={<TestReportPage />} />
             <Route path="settings" element={<DoctorSettingsPage />}>
               <Route index element={<Navigate to="profile" replace />} />
               <Route path="profile" element={<DoctorProfileSettings />} />

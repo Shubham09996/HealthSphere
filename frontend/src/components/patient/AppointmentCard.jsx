@@ -8,8 +8,8 @@ const statusStyles = {
     Cancelled: 'bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300',
 };
 
-const AppointmentCard = ({ appointment, onCancel, onReschedule }) => {
-    const { doctor, specialty, hospital, date, time, status } = appointment;
+const AppointmentCard = ({ appointment, onCancel, onReschedule, isFamilyAppointment = false }) => {
+    const { doctor, specialty, hospital, date, time, status, patientName } = appointment;
 
     return (
         <div className="bg-background p-4 rounded-lg border border-border transition-shadow hover:shadow-md">
@@ -22,6 +22,11 @@ const AppointmentCard = ({ appointment, onCancel, onReschedule }) => {
                     <div>
                         <h4 className="font-bold text-foreground text-lg">Dr. {doctor || 'Unknown Doctor'}</h4>
                         <p className="text-sm text-muted-foreground">{specialty || 'N/A'}</p>
+                        {isFamilyAppointment && patientName && (
+                            <p className="text-xs text-muted-foreground mt-1">
+                                For: <span className="font-semibold text-foreground">{patientName}</span>
+                            </p>
+                        )}
                     </div>
                 </div>
                 {/* Status Badge */}
@@ -53,8 +58,8 @@ const AppointmentCard = ({ appointment, onCancel, onReschedule }) => {
             <div className="border-t border-border mt-4 pt-4 flex flex-col sm:flex-row justify-end items-center gap-3">
                 {status === 'Upcoming' && (
                     <>
-                        <button onClick={() => onReschedule(appointment._id)} className="w-full sm:w-auto text-sm text-muted-foreground font-semibold hover:text-foreground">Reschedule</button>
-                        <button onClick={() => onCancel(appointment._id)} className="w-full sm:w-auto text-sm text-red-500 font-semibold hover:text-red-700">Cancel Appointment</button>
+                        <button onClick={() => onReschedule(appointment)} className="w-full sm:w-auto text-sm text-muted-foreground font-semibold hover:text-foreground">Reschedule</button>
+                        <button onClick={() => onCancel(appointment)} className="w-full sm:w-auto text-sm text-red-500 font-semibold hover:text-red-700">Cancel Appointment</button>
                         <button className="w-full sm:w-auto text-sm font-semibold bg-gradient-to-r from-hs-gradient-start via-hs-gradient-middle to-hs-gradient-end text-transparent bg-clip-text">
                             View Queue →
                         </button>

@@ -74,15 +74,15 @@ export const AuthProvider = ({ children }) => {
     };
 
     const logout = async () => {
-        try {
-            await api.post('/api/users/logout'); // Call your logout API
-        } catch (error) {
-            console.error('Logout API failed:', error);
-        } finally {
+        // try {
+        //     await api.post('/api/users/logout'); // Call your logout API
+        // } catch (error) {
+        //     console.error('Logout API failed:', error);
+        // } finally {
             // Clear ALL localStorage data
             localStorage.clear();
             setUser(null);
-        }
+        // }
     };
 
     return (

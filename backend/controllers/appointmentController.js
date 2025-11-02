@@ -30,7 +30,18 @@ const getMyAppointments = asyncHandler(async (req, res) => {
             res.status(404);
             throw new Error('Patient profile not found');
         }
-        query = { patient: patient._id };
+        
+        // Get primary patient ID
+        const primaryPatientId = patient._id;
+        
+        // Find all family members (patients with this primaryPatientId)
+        const familyMembers = await Patient.find({ primaryPatient: primaryPatientId }).select('_id');
+        const familyMemberIds = familyMembers.map(fm => fm._id);
+        
+        // Include both primary patient and family member appointments
+        query = { 
+            patient: { $in: [primaryPatientId, ...familyMemberIds] }
+        };
     } else if (req.user.role === 'Doctor') {
         const doctor = await Doctor.findOne({ user: req.user._id });
         if (!doctor) {
@@ -42,7 +53,7 @@ const getMyAppointments = asyncHandler(async (req, res) => {
     // Admins can see all appointments (no specific query needed for admin, already covered by getAppointments if not filtered)
 
     const appointments = await Appointment.find(query)
-      .populate('patient', 'patientId name profilePicture dob gender bloodGroup isPremium user')
+      .populate('patient', 'patientId name profilePicture dob gender bloodGroup isPremium user primaryPatient')
       .populate({
         path: 'doctor',
         select: 'specialty qualifications averageRating numberOfReviews user',
@@ -51,7 +62,8 @@ const getMyAppointments = asyncHandler(async (req, res) => {
           select: 'name profilePicture'
         }
       })
-      .populate('hospital', 'name location');
+      .populate('hospital', 'name location')
+      .sort({ date: -1, time: -1 }); // Sort by date and time descending
 
     res.json(appointments);
 });
@@ -212,12 +224,15 @@ const createAppointment = asyncHandler(async (req, res) => {
   if (delay > 0 && patientToBook.user) { // Only schedule call if delay is positive and patient user exists
       const patientUser = await User.findById(patientToBook.user);
       if (patientUser && patientUser.phoneNumber) {
-          const patientPhoneNumber = `+91${patientUser.phoneNumber}`; // Add +91 prefix
-          console.log("Attempting to schedule Twilio call for patient:", patientPhoneNumber);
+          console.log("Attempting to schedule Twilio call for patient:", patientUser.phoneNumber);
           console.log("Call scheduled in", delay / 1000, "seconds"); // Log the delay in seconds
-          setTimeout(() => {
-              makeCall(patientPhoneNumber, config.twilio.recordedCallUrl)
-                  .catch(err => console.error("Error making scheduled call:", err));
+          setTimeout(async () => {
+              try {
+                  await makeCall(patientUser.phoneNumber, config.twilio.recordedCallUrl);
+              } catch (err) {
+                  console.error("Error making scheduled call:", err);
+                  // Don't throw - just log the error to prevent app crashes
+              }
           }, delay);
       }
   }
@@ -254,58 +269,83 @@ const updateAppointment = asyncHandler(async (req, res) => {
 
   if (appointment) {
     // Authorization: Only admin, the patient who made the appointment, or the doctor for the appointment can update
+    const patient = await Patient.findById(appointment.patient).select('user');
+    const doctor = await Doctor.findById(appointment.doctor).select('user');
+    
     const isAuthorized = req.user.role === 'Admin' || 
-                         (appointment.patient && appointment.patient.user && appointment.patient.user.toString() === req.user._id.toString()) ||
-                         (appointment.doctor && appointment.doctor.user && appointment.doctor.user.toString() === req.user._id.toString());
+                         (patient && patient.user && patient.user.toString() === req.user._id.toString()) ||
+                         (doctor && doctor.user && doctor.user.toString() === req.user._id.toString());
     
     if (!isAuthorized) {
         res.status(403);
         throw new Error('Not authorized to update this appointment');
     }
 
+    // Store old status before updating
+    const oldStatus = appointment.status;
+    
     appointment.date = date || appointment.date;
     appointment.time = time || appointment.time;
     appointment.reason = reason || appointment.reason;
-    appointment.status = status || appointment.status;
+    if (status) {
+        appointment.status = status;
+    }
     appointment.tokenNumber = tokenNumber || appointment.tokenNumber;
 
     const updatedAppointment = await appointment.save();
 
-    // Notify parties about status change
-    if (status && status !== appointment.status) { // Only notify if status has actually changed
+    // Notify parties about status change - always notify both patient and doctor
+    if (status && status !== oldStatus) {
         const patient = await Patient.findById(updatedAppointment.patient);
         const doctor = await Doctor.findById(updatedAppointment.doctor);
 
+        // Notify patient
         if (patient && patient.user) {
             const patientUser = await User.findById(patient.user);
-            if (patientUser && patientUser.phoneNumber) {
-                const msg = `Hello ${patientUser.name}, your appointment with Dr. ${doctor.user.name} on ${new Date(updatedAppointment.date).toDateString()} at ${updatedAppointment.time} has been ${updatedAppointment.status}.`;
-                sendSms(patientUser.phoneNumber, msg);
+            if (patientUser) {
+                if (patientUser.phoneNumber) {
+                    const doctorUser = await User.findById(doctor.user);
+                    const msg = `Hello ${patientUser.name}, your appointment with Dr. ${doctorUser?.name || 'your doctor'} on ${new Date(updatedAppointment.date).toDateString()} at ${updatedAppointment.time} has been ${updatedAppointment.status}.`;
+                    // Send SMS (won't crash if it fails - sendSms handles errors gracefully)
+                    sendSms(patientUser.phoneNumber, msg).catch(err => {
+                        console.error('Failed to send SMS to patient:', err);
+                    });
+                }
+                const doctorUser = await User.findById(doctor.user);
+                await Notification.create({
+                    recipient: patient._id,
+                    onModel: 'Patient',
+                    title: 'Appointment Status Update',
+                    message: `Your appointment with Dr. ${doctorUser?.name || 'your doctor'} on ${new Date(updatedAppointment.date).toDateString()} at ${updatedAppointment.time} is now ${updatedAppointment.status}.`,
+                    category: 'Appointment',
+                    link: `/patient/appointments/${updatedAppointment._id}`,
+                });
             }
-            await Notification.create({
-                recipient: patient._id,
-                onModel: 'Patient',
-                title: 'Appointment Status Update',
-                message: `Your appointment with Dr. ${doctor.user.name} on ${new Date(updatedAppointment.date).toDateString()} at ${updatedAppointment.time} is now ${updatedAppointment.status}.`,
-                category: 'Appointment',
-                link: `/patient/appointments/${updatedAppointment._id}`,
-            });
         }
 
-        if (doctor && doctor.user && req.user.role === 'Admin' || req.user.role === 'Doctor') { // Only notify doctor if admin or doctor updated it
+        // Notify doctor - always notify when status changes, regardless of who made the change
+        if (doctor && doctor.user) {
             const doctorUser = await User.findById(doctor.user);
-            if (doctorUser && doctorUser.phoneNumber) {
-                const msg = `Hello Dr. ${doctorUser.name}, the appointment for ${patient.name} (ID: ${patient.patientId}) on ${new Date(updatedAppointment.date).toDateString()} at ${updatedAppointment.time} has been ${updatedAppointment.status}.`;
-                sendSms(doctorUser.phoneNumber, msg);
+            if (doctorUser) {
+                const patientName = patient?.name || 'Patient';
+                const patientId = patient?.patientId || 'N/A';
+                
+                if (doctorUser.phoneNumber) {
+                    const msg = `Hello Dr. ${doctorUser.name}, the appointment for ${patientName} (ID: ${patientId}) on ${new Date(updatedAppointment.date).toDateString()} at ${updatedAppointment.time} has been ${updatedAppointment.status}.`;
+                    // Send SMS (won't crash if it fails - sendSms handles errors gracefully)
+                    sendSms(doctorUser.phoneNumber, msg).catch(err => {
+                        console.error('Failed to send SMS to doctor:', err);
+                    });
+                }
+                await Notification.create({
+                    recipient: doctor._id,
+                    onModel: 'Doctor',
+                    title: 'Appointment Status Update',
+                    message: `Appointment for ${patientName} (ID: ${patientId}) on ${new Date(updatedAppointment.date).toDateString()} at ${updatedAppointment.time} is now ${updatedAppointment.status}.`,
+                    category: 'Appointment',
+                    link: `/doctor/appointments/${updatedAppointment._id}`,
+                });
             }
-            await Notification.create({
-                recipient: doctor._id,
-                onModel: 'Doctor',
-                title: 'Appointment Status Update',
-                message: `Appointment for ${patient.name} (ID: ${patient.patientId}) on ${new Date(updatedAppointment.date).toDateString()} at ${updatedAppointment.time} is now ${updatedAppointment.status}.`,
-                category: 'Appointment',
-                link: `/doctor/appointments/${updatedAppointment._id}`,
-            });
         }
     }
 
