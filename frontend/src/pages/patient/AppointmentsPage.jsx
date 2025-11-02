@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { CalendarPlus, User, Users } from 'lucide-react';
+import { toast } from 'react-toastify';
 import AppointmentCard from '../../components/patient/AppointmentCard';
+import RescheduleModal from '../../components/patient/RescheduleModal';
+import CancelConfirmModal from '../../components/patient/CancelConfirmModal';
 import { Link } from 'react-router-dom';
 import api from '../../utils/api';
 
@@ -12,6 +15,10 @@ const AppointmentsPage = () => {
     const [familyPreviousAppointments, setFamilyPreviousAppointments] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [rescheduleModalOpen, setRescheduleModalOpen] = useState(false);
+    const [cancelModalOpen, setCancelModalOpen] = useState(false);
+    const [selectedAppointment, setSelectedAppointment] = useState(null);
+    const [isCancelling, setIsCancelling] = useState(false);
 
     // Helper function to format and categorize appointments
     const categorizeAppointments = (appointments, isFamilyAppointments = false) => {
@@ -38,7 +45,10 @@ const AppointmentsPage = () => {
                 doctor: appt.doctor?.user?.name || 'Unknown Doctor',
                 specialty: appt.doctor?.specialty || 'N/A',
                 hospital: appt.hospital?.name || 'N/A',
+                hospitalId: appt.hospital?._id || appt.hospital,
+                doctorId: appt.doctor?._id || appt.doctor,
                 date: new Date(appt.date).toDateString(),
+                dateISO: appt.date, // Keep ISO format for API calls
                 time: appt.time,
                 status: mappedStatus,
                 patientName: patientName,
@@ -59,6 +69,7 @@ const AppointmentsPage = () => {
     const fetchAppointments = async () => {
         try {
             setLoading(true);
+            setError(null);
             
             // Fetch all appointments (includes my appointments + family member appointments)
             const appointmentsRes = await api.get('/api/appointments/myappointments');
@@ -98,7 +109,20 @@ const AppointmentsPage = () => {
 
         } catch (err) {
             console.error('Error fetching appointments:', err);
-            setError(err.response?.data?.message || err.message || 'Failed to fetch appointments');
+            
+            // Handle network errors specifically
+            if (err.code === 'ERR_NETWORK' || err.message === 'Network Error') {
+                setError('Cannot connect to the server. Please make sure the backend server is running on http://localhost:5000');
+            } else if (err.response) {
+                // Server responded with error status
+                setError(err.response?.data?.message || `Server error: ${err.response.status}`);
+            } else if (err.request) {
+                // Request made but no response received
+                setError('No response from server. Please check if the backend is running.');
+            } else {
+                // Something else happened
+                setError(err.message || 'Failed to fetch appointments');
+            }
         } finally {
             setLoading(false);
         }
@@ -108,21 +132,36 @@ const AppointmentsPage = () => {
         fetchAppointments();
     }, []);
 
-    const handleCancel = async (appointmentId) => {
-        if (window.confirm('Are you sure you want to cancel this appointment?')) {
-            try {
-                await api.put(`/api/appointments/${appointmentId}`, { status: 'Cancelled' });
-                alert('Appointment cancelled successfully!');
-                fetchAppointments(); // Refresh the list
-            } catch (error) {
-                console.error('Error cancelling appointment:', error);
-                alert('Failed to cancel appointment.');
-            }
+    const handleCancelClick = (appointment) => {
+        setSelectedAppointment(appointment);
+        setCancelModalOpen(true);
+    };
+
+    const handleCancel = async () => {
+        if (!selectedAppointment) return;
+
+        setIsCancelling(true);
+        try {
+            await api.put(`/api/appointments/${selectedAppointment._id}`, { status: 'Cancelled' });
+            toast.success('Appointment cancelled successfully!');
+            setCancelModalOpen(false);
+            setSelectedAppointment(null);
+            fetchAppointments(); // Refresh the list
+        } catch (error) {
+            console.error('Error cancelling appointment:', error);
+            toast.error(error.response?.data?.message || 'Failed to cancel appointment. Please try again.');
+        } finally {
+            setIsCancelling(false);
         }
     };
 
-    const handleReschedule = async (appointmentId) => {
-        alert('Reschedule functionality coming soon!');
+    const handleRescheduleClick = (appointment) => {
+        setSelectedAppointment(appointment);
+        setRescheduleModalOpen(true);
+    };
+
+    const handleRescheduleSuccess = () => {
+        fetchAppointments(); // Refresh the list after successful reschedule
     };
 
     if (loading) {
@@ -137,7 +176,20 @@ const AppointmentsPage = () => {
     }
 
     if (error) {
-        return <div className="text-center py-12 text-red-500">Error loading appointments: {error.message}</div>;
+        return (
+            <div className="text-center py-12">
+                <div className="max-w-md mx-auto bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6">
+                    <h3 className="text-lg font-bold text-red-700 dark:text-red-400 mb-2">Error Loading Appointments</h3>
+                    <p className="text-sm text-red-600 dark:text-red-300 mb-4">{error}</p>
+                    <button
+                        onClick={fetchAppointments}
+                        className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-semibold"
+                    >
+                        Retry
+                    </button>
+                </div>
+            </div>
+        );
     }
 
     // Component for rendering sub-section (My Appointments or Family Appointments)
@@ -158,8 +210,8 @@ const AppointmentsPage = () => {
                         <AppointmentCard 
                             key={appt._id} 
                             appointment={appt} 
-                            onCancel={handleCancel} 
-                            onReschedule={handleReschedule}
+                            onCancel={handleCancelClick} 
+                            onReschedule={handleRescheduleClick}
                             isFamilyAppointment={isFamilySection}
                         />
                     ))
@@ -304,6 +356,31 @@ const AppointmentsPage = () => {
                     )}
                 </div>
             </div>
+
+            {/* Reschedule Modal */}
+            {rescheduleModalOpen && selectedAppointment && (
+                <RescheduleModal
+                    appointment={selectedAppointment}
+                    onClose={() => {
+                        setRescheduleModalOpen(false);
+                        setSelectedAppointment(null);
+                    }}
+                    onSuccess={handleRescheduleSuccess}
+                />
+            )}
+
+            {/* Cancel Confirmation Modal */}
+            {cancelModalOpen && selectedAppointment && (
+                <CancelConfirmModal
+                    appointment={selectedAppointment}
+                    onConfirm={handleCancel}
+                    onClose={() => {
+                        setCancelModalOpen(false);
+                        setSelectedAppointment(null);
+                    }}
+                    isCancelling={isCancelling}
+                />
+            )}
         </div>
     );
 };

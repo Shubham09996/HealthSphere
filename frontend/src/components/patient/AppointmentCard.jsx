@@ -58,8 +58,8 @@ const AppointmentCard = ({ appointment, onCancel, onReschedule, isFamilyAppointm
             <div className="border-t border-border mt-4 pt-4 flex flex-col sm:flex-row justify-end items-center gap-3">
                 {status === 'Upcoming' && (
                     <>
-                        <button onClick={() => onReschedule(appointment._id)} className="w-full sm:w-auto text-sm text-muted-foreground font-semibold hover:text-foreground">Reschedule</button>
-                        <button onClick={() => onCancel(appointment._id)} className="w-full sm:w-auto text-sm text-red-500 font-semibold hover:text-red-700">Cancel Appointment</button>
+                        <button onClick={() => onReschedule(appointment)} className="w-full sm:w-auto text-sm text-muted-foreground font-semibold hover:text-foreground">Reschedule</button>
+                        <button onClick={() => onCancel(appointment)} className="w-full sm:w-auto text-sm text-red-500 font-semibold hover:text-red-700">Cancel Appointment</button>
                         <button className="w-full sm:w-auto text-sm font-semibold bg-gradient-to-r from-hs-gradient-start via-hs-gradient-middle to-hs-gradient-end text-transparent bg-clip-text">
                             View Queue →
                         </button>
