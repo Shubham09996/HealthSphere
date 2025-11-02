@@ -104,14 +104,12 @@ const createAppointment = asyncHandler(async (req, res) => {
   let patientToBook;
 
   if (forFamilyMemberId) {
-    console.log('createAppointment: forFamilyMemberId provided:', forFamilyMemberId); // NEW LOG
     // Find the family member patient
     const familyMember = await Patient.findById(forFamilyMemberId);
     if (!familyMember) {
       res.status(404);
       throw new Error('Family member patient profile not found');
     }
-    console.log('createAppointment: Found familyMember:', familyMember); // NEW LOG
 
     // Verify that this family member belongs to the logged-in user's primary patient
     const primaryUser = await User.findById(req.user._id); // Logged-in user
@@ -138,8 +136,6 @@ const createAppointment = asyncHandler(async (req, res) => {
     patientToBook = primaryPatient;
   }
   
-  console.log('createAppointment: patientToBook._id before appointment creation:', patientToBook._id); // NEW LOG
-
   let doctorToBook;
   if (doctorId === 'first_available') {
       // Find an available doctor for the given hospital, specialty, date, and time
@@ -196,8 +192,6 @@ const createAppointment = asyncHandler(async (req, res) => {
 
   const createdAppointment = await appointment.save();
 
-  console.log('createAppointment: Created appointment with patient ID:', createdAppointment.patient); // NEW LOG
-
   // Notify doctor and patient (using Twilio for SMS)
   // if (patient.user && patient.user.phoneNumber) {
   //     const patientUser = await User.findById(patient.user);
@@ -224,6 +218,8 @@ const createAppointment = asyncHandler(async (req, res) => {
   if (delay > 0 && patientToBook.user) { // Only schedule call if delay is positive and patient user exists
       const patientUser = await User.findById(patientToBook.user);
       if (patientUser && patientUser.phoneNumber) {
+          console.log("createAppointment: Patient User Found, phoneNumber:", patientUser.phoneNumber); // NEW LOG
+          console.log("createAppointment: TwiML URL for call:", config.twilio.recordedCallUrl); // NEW LOG
           console.log("Attempting to schedule Twilio call for patient:", patientUser.phoneNumber);
           console.log("Call scheduled in", delay / 1000, "seconds"); // Log the delay in seconds
           setTimeout(async () => {
